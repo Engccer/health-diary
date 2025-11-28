@@ -3,3 +3,5 @@ export { Card } from './Card';
 export { ProgressBar } from './ProgressBar';
 export { Toast, ToastContainer } from './Toast';
 export type { ToastData } from './Toast';
+export { Celebration } from './Celebration';
+export type { CelebrationType } from './Celebration';

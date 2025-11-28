@@ -11,7 +11,7 @@ const navItems: NavItem[] = [
   { to: '/', icon: '🏠', label: '홈' },
   { to: '/condition', icon: '💪', label: '컨디션' },
   { to: '/activity', icon: '🚶', label: '활동' },
-  { to: '/info', icon: '📖', label: '정보' },
+  { to: '/report', icon: '📊', label: '보고서' },
   { to: '/profile', icon: '👤', label: '나' },
 ];
 

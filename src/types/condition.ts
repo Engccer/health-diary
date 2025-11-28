@@ -12,6 +12,7 @@ export interface ConditionRecord {
 }
 
 export interface Symptoms {
+  noSymptom: boolean; // 특별한 증상 없음
   dumpingSyndrome: boolean; // 덤핑증후군
   pain: boolean; // 통증
   fatigue: boolean; // 피로감
@@ -21,6 +22,7 @@ export interface Symptoms {
 }
 
 export const SYMPTOM_LABELS: Record<keyof Symptoms, string> = {
+  noSymptom: '특별한 증상 없음',
   dumpingSyndrome: '덤핑증후군',
   pain: '통증',
   fatigue: '피로감',
@@ -40,6 +42,7 @@ export const MOOD_OPTIONS = [
 ];
 
 export const createEmptySymptoms = (): Symptoms => ({
+  noSymptom: false,
   dumpingSyndrome: false,
   pain: false,
   fatigue: false,

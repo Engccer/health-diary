@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Card, Button } from '../components/common';
-import { useActivity, useGamification, useToast } from '../hooks';
+import { Card, Button, Celebration } from '../components/common';
+import { useActivity, useGamification } from '../hooks';
 import { POINTS } from '../types';
+import { BADGES } from '../data/badges';
 import { getRelativeDate } from '../utils/date';
 import './ActivityPage.css';
 
 export function ActivityPage() {
   const { getTodayRecord, getRecentRecords, saveRecord, getWeeklyWalkingMinutes } = useActivity();
   const { addPoints } = useGamification();
-  const { showSuccess, showAchievement } = useToast();
 
   const todayRecord = getTodayRecord();
   const recentRecords = getRecentRecords(7);
@@ -17,6 +17,10 @@ export function ActivityPage() {
   const [duration, setDuration] = useState(todayRecord?.walking.duration ?? 0);
   const [note, setNote] = useState(todayRecord?.note ?? '');
   const [saved, setSaved] = useState(!!todayRecord);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationType, setCelebrationType] = useState<'success' | 'levelup' | 'badge'>('success');
+  const [celebrationMessage, setCelebrationMessage] = useState('');
+  const [celebrationSubMessage, setCelebrationSubMessage] = useState('');
 
   useEffect(() => {
     if (todayRecord) {
@@ -43,16 +47,34 @@ export function ActivityPage() {
         isActivity: true,
         walkingMinutes: duration,
       });
-      if (result.newBadges.length > 0) {
-        showAchievement('새로운 뱃지를 획득했어요!', '🏅');
+      if (result.levelUp && result.newLevel) {
+        setCelebrationType('levelup');
+        setCelebrationMessage('레벨 업!');
+        setCelebrationSubMessage(result.newLevel.name);
+        setShowCelebration(true);
+        return;
       }
-      if (result.levelUp) {
-        showAchievement(`레벨 업! ${result.newLevel?.name}`, result.newLevel?.icon);
+      if (result.newBadges.length > 0) {
+        const badge = BADGES.find(b => b.id === result.newBadges[0]);
+        setCelebrationType('badge');
+        setCelebrationMessage('새로운 뱃지 획득!');
+        setCelebrationSubMessage(badge?.name || '');
+        setShowCelebration(true);
+        return;
       }
     }
 
+    // 일반 저장 성공 애니메이션
+    setCelebrationType('success');
+    setCelebrationMessage('저장 완료!');
+    setCelebrationSubMessage('');
+    setShowCelebration(true);
     setSaved(true);
-    showSuccess('활동이 기록되었어요!');
+  };
+
+  const handleCelebrationComplete = () => {
+    setShowCelebration(false);
+    setSaved(true);
   };
 
   const quickButtons = [10, 20, 30, 45, 60];
@@ -168,6 +190,15 @@ export function ActivityPage() {
           </div>
         </section>
       )}
+
+      {/* 축하 애니메이션 */}
+      <Celebration
+        type={celebrationType}
+        show={showCelebration}
+        onComplete={handleCelebrationComplete}
+        message={celebrationMessage}
+        subMessage={celebrationSubMessage}
+      />
     </div>
   );
 }

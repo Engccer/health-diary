@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Card, Button } from '../components/common';
+import { Card, Button, Celebration } from '../components/common';
 import { useCondition, useGamification, useToast } from '../hooks';
 import { SYMPTOM_LABELS, MOOD_OPTIONS, Symptoms, createEmptySymptoms, POINTS } from '../types';
+import { BADGES } from '../data/badges';
 import { getRelativeDate } from '../utils/date';
 import './ConditionPage.css';
 
 export function ConditionPage() {
   const { getTodayRecord, getRecentRecords, saveRecord } = useCondition();
   const { addPoints } = useGamification();
-  const { showSuccess, showAchievement } = useToast();
+  const { showAchievement } = useToast();
 
   const todayRecord = getTodayRecord();
   const recentRecords = getRecentRecords(7);
@@ -22,11 +23,15 @@ export function ConditionPage() {
   const [mood, setMood] = useState<1 | 2 | 3 | 4 | 5>(todayRecord?.mood ?? 3);
   const [note, setNote] = useState(todayRecord?.note ?? '');
   const [saved, setSaved] = useState(!!todayRecord);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationType, setCelebrationType] = useState<'success' | 'levelup' | 'badge'>('success');
+  const [celebrationMessage, setCelebrationMessage] = useState('');
+  const [celebrationSubMessage, setCelebrationSubMessage] = useState('');
 
   useEffect(() => {
     if (todayRecord) {
       setOverallCondition(todayRecord.overallCondition);
-      setSymptoms(todayRecord.symptoms);
+      setSymptoms(todayRecord.symptoms ?? createEmptySymptoms());
       setMood(todayRecord.mood);
       setNote(todayRecord.note ?? '');
       setSaved(true);
@@ -34,7 +39,20 @@ export function ConditionPage() {
   }, [todayRecord]);
 
   const handleSymptomToggle = (key: keyof Symptoms) => {
-    setSymptoms((prev) => ({ ...prev, [key]: !prev[key] }));
+    if (key === 'noSymptom') {
+      // "특별한 증상 없음" 선택 시 다른 증상 모두 해제
+      setSymptoms({
+        ...createEmptySymptoms(),
+        noSymptom: !symptoms.noSymptom,
+      });
+    } else {
+      // 다른 증상 선택 시 "특별한 증상 없음" 해제
+      setSymptoms((prev) => ({
+        ...prev,
+        [key]: !prev[key],
+        noSymptom: false,
+      }));
+    }
     setSaved(false);
   };
 
@@ -49,16 +67,34 @@ export function ConditionPage() {
 
     if (isFirstRecord) {
       const result = addPoints(POINTS.DAILY_CONDITION, { isCondition: true });
-      if (result.newBadges.length > 0) {
-        showAchievement('새로운 뱃지를 획득했어요!', '🏅');
+      if (result.levelUp && result.newLevel) {
+        setCelebrationType('levelup');
+        setCelebrationMessage(`레벨 업!`);
+        setCelebrationSubMessage(result.newLevel.name);
+        setShowCelebration(true);
+        return;
       }
-      if (result.levelUp) {
-        showAchievement(`레벨 업! ${result.newLevel?.name}`, result.newLevel?.icon);
+      if (result.newBadges.length > 0) {
+        const badge = BADGES.find(b => b.id === result.newBadges[0]);
+        setCelebrationType('badge');
+        setCelebrationMessage('새로운 뱃지 획득!');
+        setCelebrationSubMessage(badge?.name || '');
+        setShowCelebration(true);
+        return;
       }
     }
 
+    // 일반 저장 성공 애니메이션
+    setCelebrationType('success');
+    setCelebrationMessage('저장 완료!');
+    setCelebrationSubMessage('');
+    setShowCelebration(true);
     setSaved(true);
-    showSuccess('컨디션이 기록되었어요!');
+  };
+
+  const handleCelebrationComplete = () => {
+    setShowCelebration(false);
+    setSaved(true);
   };
 
   return (
@@ -95,10 +131,10 @@ export function ConditionPage() {
           오늘 불편한 증상이 있나요?
         </h2>
         <div className="symptom-grid" role="group" aria-label="증상 체크리스트">
-          {(Object.keys(symptoms) as Array<keyof Symptoms>).map((key) => (
+          {(Object.keys(SYMPTOM_LABELS) as Array<keyof Symptoms>).map((key) => (
             <button
               key={key}
-              className={`symptom-btn ${symptoms[key] ? 'symptom-btn--active' : ''}`}
+              className={`symptom-btn ${symptoms[key] ? 'symptom-btn--active' : ''} ${key === 'noSymptom' ? 'symptom-btn--no-symptom' : ''}`}
               onClick={() => handleSymptomToggle(key)}
               aria-pressed={symptoms[key]}
             >
@@ -179,6 +215,15 @@ export function ConditionPage() {
           </div>
         </section>
       )}
+
+      {/* 축하 애니메이션 */}
+      <Celebration
+        type={celebrationType}
+        show={showCelebration}
+        onComplete={handleCelebrationComplete}
+        message={celebrationMessage}
+        subMessage={celebrationSubMessage}
+      />
     </div>
   );
 }

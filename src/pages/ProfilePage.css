@@ -90,3 +90,181 @@
 .profile-page a {
   text-decoration: none;
 }
+
+/* 건강 정보 섹션 */
+.health-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.health-info-title {
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* 카테고리 탭 */
+.category-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-sm);
+  -webkit-overflow-scrolling: touch;
+}
+
+.category-tab {
+  flex-shrink: 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.category-tab:hover {
+  background-color: var(--color-primary-light);
+}
+
+.category-tab--active {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.category-tab:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+/* 기사 목록 */
+.article-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.article-card {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+}
+
+.article-card__icon {
+  font-size: var(--font-size-2xl);
+  flex-shrink: 0;
+}
+
+.article-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.article-card__title {
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.article-card__summary {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.article-card__meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+}
+
+/* 뒤로가기 버튼 */
+.info-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-primary);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.info-back-btn:hover {
+  background-color: var(--color-primary-light);
+}
+
+.info-back-btn:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+/* 기사 상세 */
+.article-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.article-detail__header {
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+}
+
+.article-detail__icon {
+  font-size: var(--font-size-3xl);
+  display: block;
+  margin-bottom: var(--spacing-md);
+}
+
+.article-detail__title {
+  font-size: var(--font-size-2xl);
+  font-weight: bold;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.article-detail__meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.article-detail__content {
+  font-size: var(--font-size-base);
+  line-height: 1.8;
+  color: var(--color-text-primary);
+}
+
+.article-detail__content h2 {
+  font-size: var(--font-size-xl);
+  font-weight: bold;
+  margin: var(--spacing-xl) 0 var(--spacing-md) 0;
+  color: var(--color-text-primary);
+}
+
+.article-detail__content h3 {
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  margin: var(--spacing-lg) 0 var(--spacing-sm) 0;
+  color: var(--color-text-primary);
+}
+
+.article-detail__content p {
+  margin: var(--spacing-md) 0;
+}
+
+.article-detail__content ul {
+  margin: var(--spacing-sm) 0;
+  padding-left: var(--spacing-lg);
+}
+
+.article-detail__content li {
+  margin: var(--spacing-xs) 0;
+  list-style: disc;
+}
+
+.article-detail__content strong {
+  color: var(--color-primary);
+}

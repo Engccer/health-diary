@@ -1,0 +1,39 @@
+.activity-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.activity-chart__container {
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.activity-chart__legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.activity-chart__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.activity-chart__bar {
+  width: 16px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.activity-chart__bar--goal {
+  background: #22c55e;
+}
+
+.activity-chart__bar--active {
+  background: #2563eb;
+}

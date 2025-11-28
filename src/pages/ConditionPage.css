@@ -82,6 +82,16 @@
   color: var(--color-error);
 }
 
+.symptom-btn--no-symptom {
+  grid-column: 1 / -1;
+}
+
+.symptom-btn--no-symptom.symptom-btn--active {
+  background-color: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
 .symptom-btn:focus-visible {
   box-shadow: var(--focus-ring);
 }

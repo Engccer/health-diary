@@ -6,7 +6,7 @@ import {
   HomePage,
   ConditionPage,
   ActivityPage,
-  InfoPage,
+  ReportPage,
   ProfilePage,
   SettingsPage,
 } from './pages';
@@ -23,7 +23,7 @@ function AppContent() {
           <Route index element={<HomePage />} />
           <Route path="condition" element={<ConditionPage />} />
           <Route path="activity" element={<ActivityPage />} />
-          <Route path="info" element={<InfoPage />} />
+          <Route path="report" element={<ReportPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
