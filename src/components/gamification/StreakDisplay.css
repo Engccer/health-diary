@@ -1,0 +1,51 @@
+.streak-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background: linear-gradient(135deg, var(--color-streak-light), #fff7ed);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.streak-display--sm {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.streak-display--lg {
+  padding: var(--spacing-lg) var(--spacing-xl);
+}
+
+.streak-display__icon {
+  font-size: var(--font-size-2xl);
+}
+
+.streak-display--sm .streak-display__icon {
+  font-size: var(--font-size-lg);
+}
+
+.streak-display--lg .streak-display__icon {
+  font-size: var(--font-size-3xl);
+}
+
+.streak-display__number {
+  font-size: var(--font-size-2xl);
+  font-weight: bold;
+  color: var(--color-streak);
+}
+
+.streak-display--sm .streak-display__number {
+  font-size: var(--font-size-lg);
+}
+
+.streak-display--lg .streak-display__number {
+  font-size: var(--font-size-3xl);
+}
+
+.streak-display__label {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+.streak-display--sm .streak-display__label {
+  font-size: var(--font-size-sm);
+}

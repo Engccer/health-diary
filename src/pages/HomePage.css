@@ -1,0 +1,104 @@
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* 인사 */
+.home-page__greeting {
+  text-align: center;
+  padding: var(--spacing-md) 0;
+}
+
+.home-page__greeting-text {
+  font-size: var(--font-size-xl);
+  font-weight: bold;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.home-page__date {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+/* 섹션 제목 */
+.home-page__section-title {
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+/* 오늘의 기록 */
+.home-page__record-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.home-page__record-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-lg);
+  border: 2px solid var(--color-border);
+  transition: all var(--transition-fast);
+}
+
+.home-page__record-card:hover {
+  border-color: var(--color-primary);
+}
+
+.home-page__record-card--done {
+  background-color: var(--color-success-light);
+  border-color: var(--color-success);
+}
+
+.home-page__record-icon {
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-sm);
+}
+
+.home-page__record-label {
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.home-page__record-status {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+.home-page__record-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* 빠른 동작 */
+.home-page__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.home-page__actions a {
+  text-decoration: none;
+}
+
+/* 응원 메시지 */
+.home-page__encouragement {
+  background: linear-gradient(135deg, var(--color-primary-light), #e0f2fe);
+  text-align: center;
+}
+
+.home-page__encouragement-text {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  margin: 0;
+}

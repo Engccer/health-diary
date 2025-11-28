@@ -1,0 +1,33 @@
+.level-display {
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+}
+
+.level-display__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.level-display__icon {
+  font-size: var(--font-size-3xl);
+  line-height: 1;
+}
+
+.level-display__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.level-display__name {
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.level-display__points {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}

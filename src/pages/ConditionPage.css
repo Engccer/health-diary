@@ -1,0 +1,154 @@
+.condition-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.condition-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.condition-section__title {
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* 컨디션 슬라이더 */
+.condition-slider {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.condition-slider__btn {
+  flex: 1;
+  min-height: var(--min-touch-target);
+  font-size: var(--font-size-xl);
+  font-weight: bold;
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.condition-slider__btn:hover {
+  background-color: var(--color-primary-light);
+}
+
+.condition-slider__btn--active {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.condition-slider__btn:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.condition-slider__label {
+  text-align: center;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+/* 증상 그리드 */
+.symptom-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.symptom-btn {
+  min-height: var(--min-touch-target);
+  padding: var(--spacing-md);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-border);
+  transition: all var(--transition-fast);
+}
+
+.symptom-btn:hover {
+  border-color: var(--color-primary);
+}
+
+.symptom-btn--active {
+  background-color: var(--color-error-light);
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.symptom-btn:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+/* 기분 선택 */
+.mood-picker {
+  display: flex;
+  justify-content: space-around;
+  gap: var(--spacing-sm);
+}
+
+.mood-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.mood-btn:hover {
+  transform: scale(1.1);
+}
+
+.mood-btn--active {
+  background-color: var(--color-warning-light);
+  box-shadow: 0 0 0 3px var(--color-warning);
+}
+
+.mood-btn:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.mood-btn__emoji {
+  font-size: var(--font-size-2xl);
+}
+
+/* 메모 */
+.condition-note {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* 최근 기록 */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.history-item__date {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  min-width: 80px;
+}
+
+.history-item__mood {
+  font-size: var(--font-size-xl);
+}
+
+.history-item__condition {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-left: auto;
+}
