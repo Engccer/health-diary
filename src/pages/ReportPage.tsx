@@ -1,19 +1,122 @@
-import { useState } from 'react';
-import { Card } from '../components/common';
+import { useState, useRef } from 'react';
+import { Card, Button } from '../components/common';
 import { ConditionChart, ActivityChart } from '../components/report';
-import { useReport, useCondition, useActivity } from '../hooks';
+import { useReport } from '../hooks';
 import { MOOD_OPTIONS, SYMPTOM_LABELS, Symptoms } from '../types';
 import { formatKoreanDate } from '../utils/date';
+import {
+  canShare,
+  captureElement,
+  shareReport,
+  downloadImage,
+  copyToClipboard,
+  formatDateForShare,
+  formatDateRangeForShare,
+} from '../utils/share';
 import './ReportPage.css';
 
 type ReportTab = 'daily' | 'weekly';
 
 export function ReportPage() {
   const [activeTab, setActiveTab] = useState<ReportTab>('daily');
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
   const { getTodayReport, getWeeklyReport } = useReport();
+
+  const dailyReportRef = useRef<HTMLDivElement>(null);
+  const weeklyReportRef = useRef<HTMLDivElement>(null);
 
   const todayReport = getTodayReport;
   const weeklyReport = getWeeklyReport;
+
+  // 일일 보고서 공유 텍스트 생성
+  const generateDailyShareText = (): string => {
+    const dateStr = formatDateForShare(todayReport.date);
+    let text = `📋 건강일기 - ${dateStr}\n\n`;
+
+    if (todayReport.condition) {
+      const conditionLabel =
+        todayReport.condition.overallCondition <= 2 ? '안 좋음' :
+        todayReport.condition.overallCondition === 3 ? '보통' : '좋음';
+      text += `💪 컨디션: ${todayReport.condition.overallCondition}/5 (${conditionLabel})\n`;
+
+      const moodOption = MOOD_OPTIONS.find(m => m.value === todayReport.condition?.mood);
+      if (moodOption) {
+        text += `😊 기분: ${moodOption.label}\n`;
+      }
+
+      if (todayReport.condition.symptoms) {
+        if (todayReport.condition.symptoms.noSymptom) {
+          text += `🩺 증상: 특별한 증상 없음\n`;
+        } else {
+          const symptomList = (Object.keys(todayReport.condition.symptoms) as Array<keyof Symptoms>)
+            .filter(key => key !== 'noSymptom' && todayReport.condition?.symptoms[key])
+            .map(key => SYMPTOM_LABELS[key]);
+          if (symptomList.length > 0) {
+            text += `🩺 증상: ${symptomList.join(', ')}\n`;
+          }
+        }
+      }
+    }
+
+    if (todayReport.activity) {
+      text += `🚶 활동: ${todayReport.activity.walking.duration}분\n`;
+    }
+
+    text += `\n#건강일기`;
+    return text;
+  };
+
+  // 주간 보고서 공유 텍스트 생성
+  const generateWeeklyShareText = (): string => {
+    const dateRange = formatDateRangeForShare(weeklyReport.startDate, weeklyReport.endDate);
+    let text = `📊 건강일기 주간 보고서\n`;
+    text += `📅 ${dateRange}\n\n`;
+    text += `📝 기록일: ${weeklyReport.recordedDays}일\n`;
+    if (weeklyReport.averageCondition !== null) {
+      text += `💪 평균 컨디션: ${weeklyReport.averageCondition.toFixed(1)}\n`;
+    }
+    text += `🚶 총 활동: ${weeklyReport.totalActivityMinutes}분\n`;
+    text += `\n#건강일기`;
+    return text;
+  };
+
+  // 공유 핸들러
+  const handleShare = async (type: 'daily' | 'weekly') => {
+    const ref = type === 'daily' ? dailyReportRef : weeklyReportRef;
+    if (!ref.current) return;
+
+    setIsSharing(true);
+    setShareMessage(null);
+
+    try {
+      const text = type === 'daily' ? generateDailyShareText() : generateWeeklyShareText();
+      const title = type === 'daily' ? '건강일기 일일 보고서' : '건강일기 주간 보고서';
+
+      // 스크린샷 캡처
+      const imageBlob = await captureElement(ref.current);
+
+      if (canShare()) {
+        // Web Share API 사용
+        const shared = await shareReport(imageBlob, text, title);
+        if (shared) {
+          setShareMessage('공유 완료!');
+        }
+      } else {
+        // Fallback: 이미지 다운로드 + 텍스트 복사
+        downloadImage(imageBlob, `health-report-${type}.png`);
+        await copyToClipboard(text);
+        setShareMessage('이미지 다운로드 및 텍스트 복사 완료!');
+      }
+    } catch (error) {
+      console.error('Share error:', error);
+      setShareMessage('공유 중 오류가 발생했습니다.');
+    } finally {
+      setIsSharing(false);
+      // 메시지 3초 후 숨김
+      setTimeout(() => setShareMessage(null), 3000);
+    }
+  };
 
   return (
     <div className="page report-page">
@@ -37,11 +140,32 @@ export function ReportPage() {
         </button>
       </div>
 
+      {/* 공유 상태 메시지 */}
+      {shareMessage && (
+        <div className="share-message" role="status" aria-live="polite">
+          {shareMessage}
+        </div>
+      )}
+
       {/* 일일 보고서 */}
       {activeTab === 'daily' && (
         <div role="tabpanel" aria-label="일일 보고서" className="report-content">
-          <h2 className="report-date">{formatKoreanDate(new Date())}</h2>
+          <div className="report-header">
+            <h2 className="report-date">{formatKoreanDate(new Date())}</h2>
+            {todayReport.hasData && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleShare('daily')}
+                disabled={isSharing}
+                icon="📤"
+              >
+                {isSharing ? '공유 중...' : '공유'}
+              </Button>
+            )}
+          </div>
 
+          <div ref={dailyReportRef} className="report-capture-area">
           {!todayReport.hasData ? (
             <Card className="report-empty">
               <p className="report-empty__text">
@@ -133,17 +257,30 @@ export function ReportPage() {
               )}
             </>
           )}
+          </div>
         </div>
       )}
 
       {/* 주간 보고서 */}
       {activeTab === 'weekly' && (
         <div role="tabpanel" aria-label="주간 보고서" className="report-content">
-          <h2 className="report-date">
-            {weeklyReport.startDate.slice(5).replace('-', '/')} ~{' '}
-            {weeklyReport.endDate.slice(5).replace('-', '/')}
-          </h2>
+          <div className="report-header">
+            <h2 className="report-date">
+              {weeklyReport.startDate.slice(5).replace('-', '/')} ~{' '}
+              {weeklyReport.endDate.slice(5).replace('-', '/')}
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleShare('weekly')}
+              disabled={isSharing}
+              icon="📤"
+            >
+              {isSharing ? '공유 중...' : '공유'}
+            </Button>
+          </div>
 
+          <div ref={weeklyReportRef} className="report-capture-area">
           {/* 요약 카드 */}
           <div className="report-summary-grid">
             <Card className="report-summary-card">
@@ -191,6 +328,7 @@ export function ReportPage() {
               </div>
             </Card>
           )}
+          </div>
         </div>
       )}
     </div>

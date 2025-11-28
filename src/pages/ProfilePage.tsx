@@ -4,8 +4,8 @@ import { Card, Button } from '../components/common';
 import { StreakDisplay, LevelDisplay, BadgeCard } from '../components/gamification';
 import { useGamification, useCondition, useActivity, useSettings } from '../hooks';
 import { BADGES } from '../data/badges';
-import { HEALTH_ARTICLES, getArticlesByCategory } from '../data/healthInfo';
-import { CATEGORY_LABELS, CATEGORY_ICONS, InfoCategory, HealthArticle } from '../types';
+import { HEALTH_ARTICLES } from '../data/healthInfo';
+import { CATEGORY_LABELS, HealthArticle } from '../types';
 import './ProfilePage.css';
 
 export function ProfilePage() {
@@ -14,17 +14,11 @@ export function ProfilePage() {
   const { getTotalActivityDays } = useActivity();
   const { settings } = useSettings();
 
-  const [selectedCategory, setSelectedCategory] = useState<InfoCategory | 'all'>('all');
   const [selectedArticle, setSelectedArticle] = useState<HealthArticle | null>(null);
+  const [isHealthInfoExpanded, setIsHealthInfoExpanded] = useState(false);
 
   const totalConditionDays = getTotalRecordDays();
   const totalActivityDays = getTotalActivityDays();
-
-  const categories: (InfoCategory | 'all')[] = ['all', 'diet', 'exercise', 'symptom', 'checkup', 'mental'];
-  const filteredArticles =
-    selectedCategory === 'all'
-      ? HEALTH_ARTICLES
-      : getArticlesByCategory(selectedCategory);
 
   // 기사 상세 뷰
   if (selectedArticle) {
@@ -78,6 +72,13 @@ export function ProfilePage() {
         </p>
       </section>
 
+      {/* 설정 링크 (상단) */}
+      <Link to="/settings">
+        <Button variant="outline" size="md" fullWidth icon="⚙️">
+          설정
+        </Button>
+      </Link>
+
       {/* 스트릭 */}
       <StreakDisplay streak={progress.currentStreak} size="lg" />
 
@@ -127,56 +128,49 @@ export function ProfilePage() {
         </div>
       </section>
 
-      {/* 건강 정보 */}
+      {/* 건강 정보 (접이식) */}
       <section className="health-info-section" aria-label="건강 정보">
-        <h3 className="health-info-title">건강 정보</h3>
-
-        {/* 카테고리 탭 */}
-        <nav className="category-tabs" role="tablist" aria-label="카테고리 선택">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              className={`category-tab ${selectedCategory === cat ? 'category-tab--active' : ''}`}
-              onClick={() => setSelectedCategory(cat)}
-              role="tab"
-              aria-selected={selectedCategory === cat}
-            >
-              {cat === 'all' ? '전체' : `${CATEGORY_ICONS[cat]} ${CATEGORY_LABELS[cat]}`}
-            </button>
-          ))}
-        </nav>
+        <button
+          className="health-info-header"
+          onClick={() => setIsHealthInfoExpanded(!isHealthInfoExpanded)}
+          aria-expanded={isHealthInfoExpanded}
+          aria-controls="health-info-content"
+        >
+          <h3 className="health-info-title">건강 정보</h3>
+          <span className={`health-info-arrow ${isHealthInfoExpanded ? 'health-info-arrow--expanded' : ''}`} aria-hidden="true">
+            ▶
+          </span>
+        </button>
 
         {/* 기사 목록 */}
-        <div className="article-list" role="list">
-          {filteredArticles.map((article) => (
-            <Card
-              key={article.id}
-              className="article-card"
-              clickable
-              onClick={() => setSelectedArticle(article)}
-              aria-label={`${article.title} - ${article.summary}`}
-            >
-              <span className="article-card__icon" aria-hidden="true">
-                {article.icon}
-              </span>
-              <div className="article-card__content">
-                <h4 className="article-card__title">{article.title}</h4>
-                <p className="article-card__summary">{article.summary}</p>
-                <span className="article-card__meta">
-                  {CATEGORY_LABELS[article.category]} · {article.readTime}분
+        <div
+          id="health-info-content"
+          className={`health-info-content ${isHealthInfoExpanded ? 'health-info-content--expanded' : ''}`}
+        >
+          <div className="article-list" role="list">
+            {HEALTH_ARTICLES.map((article) => (
+              <Card
+                key={article.id}
+                className="article-card"
+                clickable
+                onClick={() => setSelectedArticle(article)}
+                aria-label={`${article.title} - ${article.summary}`}
+              >
+                <span className="article-card__icon" aria-hidden="true">
+                  {article.icon}
                 </span>
-              </div>
-            </Card>
-          ))}
+                <div className="article-card__content">
+                  <h4 className="article-card__title">{article.title}</h4>
+                  <p className="article-card__summary">{article.summary}</p>
+                  <span className="article-card__meta">
+                    {CATEGORY_LABELS[article.category]} · {article.readTime}분
+                  </span>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
-
-      {/* 설정 링크 */}
-      <Link to="/settings">
-        <Button variant="outline" size="lg" fullWidth icon="⚙️">
-          설정
-        </Button>
-      </Link>
     </div>
   );
 }

@@ -48,7 +48,7 @@ export function HomePage() {
             fullWidth
             icon={hasConditionToday() ? '✓' : '💪'}
           >
-            {hasConditionToday() ? '컨디션 기록 완료' : '컨디션 기록'}
+            {hasConditionToday() ? '컨디션 기록 완료' : '컨디션 기록하기'}
           </Button>
         </Link>
         <Link to="/activity">
@@ -58,7 +58,7 @@ export function HomePage() {
             fullWidth
             icon={hasActivityToday() ? '✓' : '🚶'}
           >
-            {hasActivityToday() ? '활동 기록 완료' : '활동 기록'}
+            {hasActivityToday() ? '활동 기록 완료' : '활동 기록하기'}
           </Button>
         </Link>
       </section>
