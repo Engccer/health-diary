@@ -5,3 +5,6 @@ export { Toast, ToastContainer } from './Toast';
 export type { ToastData } from './Toast';
 export { Celebration } from './Celebration';
 export type { CelebrationType } from './Celebration';
+export { UpdateBanner } from './UpdateBanner';
+export { BottomSheet } from './BottomSheet';
+export { ConfirmDialog } from './ConfirmDialog';

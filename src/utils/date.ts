@@ -78,3 +78,46 @@ export function getDaysInMonth(year: number, month: number): number {
 export function getFirstDayOfMonth(year: number, month: number): number {
   return new Date(year, month, 1).getDay();
 }
+
+/**
+ * 시간을 오전/오후 형식으로 포맷 (예: "오전 9:30")
+ */
+export function formatTime(timestamp: number): string {
+  const date = new Date(timestamp);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const period = hours < 12 ? '오전' : '오후';
+  const displayHours = hours % 12 || 12;
+  const displayMinutes = String(minutes).padStart(2, '0');
+  return `${period} ${displayHours}:${displayMinutes}`;
+}
+
+/**
+ * 상대적 날짜와 시간 표시 (예: "오늘 오전 9:30", "어제 오후 3:15")
+ */
+export function getRelativeDateTimeFromTimestamp(timestamp: number): string {
+  const date = new Date(timestamp);
+  const dateStr = formatDate(date);
+  const timeStr = formatTime(timestamp);
+
+  if (isToday(dateStr)) return `오늘 ${timeStr}`;
+  if (isYesterday(dateStr)) return `어제 ${timeStr}`;
+
+  return `${formatKoreanDate(date)} ${timeStr}`;
+}
+
+/**
+ * 시간대 구분 (6개 구간)
+ */
+export type TimeOfDay = 'earlyMorning' | 'morning' | 'afternoon' | 'lateAfternoon' | 'evening' | 'night';
+
+export function getTimeOfDay(): TimeOfDay {
+  const hour = new Date().getHours();
+
+  if (hour >= 5 && hour < 7) return 'earlyMorning';   // 이른 아침: 5-7시
+  if (hour >= 7 && hour < 12) return 'morning';       // 오전: 7-12시
+  if (hour >= 12 && hour < 15) return 'afternoon';    // 오후: 12-15시
+  if (hour >= 15 && hour < 18) return 'lateAfternoon'; // 늦은 오후: 15-18시
+  if (hour >= 18 && hour < 21) return 'evening';      // 저녁: 18-21시
+  return 'night';                                      // 밤: 21-5시
+}

@@ -1,0 +1,79 @@
+.update-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, #3730a3));
+  color: white;
+  box-shadow: var(--shadow-md);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.update-banner__content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.update-banner__icon {
+  font-size: var(--font-size-lg);
+}
+
+.update-banner__text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.update-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.update-banner__actions .btn {
+  background: white;
+  color: var(--color-primary);
+  border: none;
+}
+
+.update-banner__actions .btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.update-banner__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  transition: background var(--transition-fast);
+}
+
+.update-banner__dismiss:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 업데이트 배너가 있을 때 페이지 상단 여백 */
+body:has(.update-banner) .main-layout {
+  padding-top: 56px;
+}

@@ -1,10 +1,26 @@
-import { Card, Button } from '../components/common';
-import { useSettings } from '../hooks';
+import { useState } from 'react';
+import { Card, Button, ConfirmDialog } from '../components/common';
+import { useSettings, useCondition, useActivity, useGamification } from '../hooks';
 import { FONT_SIZE_LABELS, FontSize } from '../types';
 import './SettingsPage.css';
 
 export function SettingsPage() {
   const { settings, setFontSize, setHighContrast, setUserName } = useSettings();
+  const { clearAllRecords: clearConditions } = useCondition();
+  const { clearAllRecords: clearActivities } = useActivity();
+  const { resetProgress } = useGamification();
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+
+  const handleDeleteAllData = () => {
+    clearConditions();
+    clearActivities();
+    resetProgress();
+    setShowDeleteConfirm(false);
+    setDeleteSuccess(true);
+    setTimeout(() => setDeleteSuccess(false), 3000);
+  };
 
   const fontSizes: FontSize[] = ['normal', 'large', 'xlarge'];
 
@@ -71,6 +87,17 @@ export function SettingsPage() {
             브라우저 데이터를 삭제하면 기록도 함께 삭제됩니다.
           </p>
         </Card>
+        <Button
+          variant="outline"
+          fullWidth
+          className="settings-delete-btn"
+          onClick={() => setShowDeleteConfirm(true)}
+        >
+          🗑️ 모든 데이터 삭제
+        </Button>
+        {deleteSuccess && (
+          <p className="settings-delete-success">✓ 모든 데이터가 삭제되었습니다.</p>
+        )}
       </section>
 
       {/* 앱 정보 */}
@@ -86,6 +113,18 @@ export function SettingsPage() {
           </p>
         </Card>
       </section>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="모든 데이터 삭제"
+        message="모든 건강 기록과 진행 상황이 삭제됩니다. 이 작업은 되돌릴 수 없습니다. 정말 삭제하시겠어요?"
+        confirmText="삭제"
+        cancelText="취소"
+        variant="danger"
+        onConfirm={handleDeleteAllData}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

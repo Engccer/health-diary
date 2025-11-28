@@ -1,42 +1,34 @@
-import { useState, useEffect } from 'react';
-import { Card, Button, Celebration } from '../components/common';
-import { useCondition, useGamification, useToast } from '../hooks';
-import { SYMPTOM_LABELS, MOOD_OPTIONS, Symptoms, createEmptySymptoms, POINTS } from '../types';
+import { useState } from 'react';
+import { Card, Button, Celebration, BottomSheet, ConfirmDialog } from '../components/common';
+import { useCondition, useGamification } from '../hooks';
+import { SYMPTOM_LABELS, MOOD_OPTIONS, Symptoms, createEmptySymptoms, POINTS, ConditionRecord } from '../types';
 import { BADGES } from '../data/badges';
-import { getRelativeDate } from '../utils/date';
+import { getRelativeDateTimeFromTimestamp } from '../utils/date';
 import './ConditionPage.css';
 
 export function ConditionPage() {
-  const { getTodayRecord, getRecentRecords, saveRecord } = useCondition();
+  const { getRecentRecords, saveRecord, updateRecord, deleteRecord, getTodayRecordCount } = useCondition();
   const { addPoints } = useGamification();
-  const { showAchievement } = useToast();
 
-  const todayRecord = getTodayRecord();
   const recentRecords = getRecentRecords(7);
+  const todayCount = getTodayRecordCount();
 
-  const [overallCondition, setOverallCondition] = useState<1 | 2 | 3 | 4 | 5>(
-    todayRecord?.overallCondition ?? 3
-  );
-  const [symptoms, setSymptoms] = useState<Symptoms>(
-    todayRecord?.symptoms ?? createEmptySymptoms()
-  );
-  const [mood, setMood] = useState<1 | 2 | 3 | 4 | 5>(todayRecord?.mood ?? 3);
-  const [note, setNote] = useState(todayRecord?.note ?? '');
-  const [saved, setSaved] = useState(!!todayRecord);
+  // 항상 기본값으로 시작 (이전 기록으로 채우지 않음)
+  const [overallCondition, setOverallCondition] = useState<1 | 2 | 3 | 4 | 5>(3);
+  const [symptoms, setSymptoms] = useState<Symptoms>(createEmptySymptoms());
+  const [mood, setMood] = useState<1 | 2 | 3 | 4 | 5>(3);
+  const [note, setNote] = useState('');
+  const [saved, setSaved] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationType, setCelebrationType] = useState<'success' | 'levelup' | 'badge'>('success');
   const [celebrationMessage, setCelebrationMessage] = useState('');
   const [celebrationSubMessage, setCelebrationSubMessage] = useState('');
 
-  useEffect(() => {
-    if (todayRecord) {
-      setOverallCondition(todayRecord.overallCondition);
-      setSymptoms(todayRecord.symptoms ?? createEmptySymptoms());
-      setMood(todayRecord.mood);
-      setNote(todayRecord.note ?? '');
-      setSaved(true);
-    }
-  }, [todayRecord]);
+  // 수정/삭제 관련 상태
+  const [editingRecord, setEditingRecord] = useState<ConditionRecord | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<ConditionRecord | null>(null);
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleSymptomToggle = (key: keyof Symptoms) => {
     if (key === 'noSymptom') {
@@ -56,8 +48,16 @@ export function ConditionPage() {
     setSaved(false);
   };
 
+  const resetForm = () => {
+    setOverallCondition(3);
+    setSymptoms(createEmptySymptoms());
+    setMood(3);
+    setNote('');
+    setSaved(false);
+  };
+
   const handleSave = () => {
-    const isFirstRecord = !todayRecord;
+    const isFirstRecordToday = todayCount === 0;
     saveRecord({
       overallCondition,
       symptoms,
@@ -65,7 +65,8 @@ export function ConditionPage() {
       note: note || undefined,
     });
 
-    if (isFirstRecord) {
+    // 오늘 첫 기록일 때만 포인트 지급
+    if (isFirstRecordToday) {
       const result = addPoints(POINTS.DAILY_CONDITION, { isCondition: true });
       if (result.levelUp && result.newLevel) {
         setCelebrationType('levelup');
@@ -94,7 +95,62 @@ export function ConditionPage() {
 
   const handleCelebrationComplete = () => {
     setShowCelebration(false);
-    setSaved(true);
+    // 저장 후 폼 초기화하여 다음 기록 준비
+    resetForm();
+  };
+
+  // 기록 탭하여 선택
+  const handleRecordTap = (record: ConditionRecord) => {
+    setSelectedRecord(record);
+    setShowBottomSheet(true);
+  };
+
+  // 수정 시작
+  const handleEdit = () => {
+    if (!selectedRecord) return;
+    setEditingRecord(selectedRecord);
+    setOverallCondition(selectedRecord.overallCondition);
+    setSymptoms(selectedRecord.symptoms ?? createEmptySymptoms());
+    setMood(selectedRecord.mood);
+    setNote(selectedRecord.note ?? '');
+    setSaved(false);
+    setShowBottomSheet(false);
+  };
+
+  // 수정 저장
+  const handleUpdateSave = () => {
+    if (!editingRecord) return;
+    updateRecord(editingRecord.id, {
+      overallCondition,
+      symptoms,
+      mood,
+      note: note || undefined,
+    });
+    setCelebrationType('success');
+    setCelebrationMessage('수정 완료!');
+    setCelebrationSubMessage('');
+    setShowCelebration(true);
+    setEditingRecord(null);
+  };
+
+  // 수정 취소
+  const handleCancelEdit = () => {
+    setEditingRecord(null);
+    resetForm();
+  };
+
+  // 삭제 확인 열기
+  const handleDeleteClick = () => {
+    setShowBottomSheet(false);
+    setShowDeleteConfirm(true);
+  };
+
+  // 삭제 실행
+  const handleDeleteConfirm = () => {
+    if (!selectedRecord) return;
+    deleteRecord(selectedRecord.id);
+    setShowDeleteConfirm(false);
+    setSelectedRecord(null);
   };
 
   return (
@@ -188,15 +244,26 @@ export function ConditionPage() {
       </section>
 
       {/* 저장 버튼 */}
-      <Button
-        variant="primary"
-        size="lg"
-        fullWidth
-        onClick={handleSave}
-        disabled={saved}
-      >
-        {saved ? '✓ 저장 완료' : '저장하기'}
-      </Button>
+      {editingRecord ? (
+        <div className="condition-page__edit-actions">
+          <Button variant="outline" size="lg" onClick={handleCancelEdit}>
+            취소
+          </Button>
+          <Button variant="primary" size="lg" onClick={handleUpdateSave}>
+            수정 저장
+          </Button>
+        </div>
+      ) : (
+        <Button
+          variant="primary"
+          size="lg"
+          fullWidth
+          onClick={handleSave}
+          disabled={saved}
+        >
+          {saved ? '✓ 저장 완료' : '저장하기'}
+        </Button>
+      )}
 
       {/* 최근 기록 */}
       {recentRecords.length > 0 && (
@@ -206,8 +273,14 @@ export function ConditionPage() {
           </h2>
           <div className="history-list">
             {recentRecords.map((record) => (
-              <Card key={record.id} className="history-item" padding="sm">
-                <span className="history-item__date">{getRelativeDate(record.date)}</span>
+              <Card
+                key={record.id}
+                className="history-item"
+                padding="sm"
+                clickable
+                onClick={() => handleRecordTap(record)}
+              >
+                <span className="history-item__date">{getRelativeDateTimeFromTimestamp(record.timestamp)}</span>
                 <span className="history-item__mood">{MOOD_OPTIONS.find(m => m.value === record.mood)?.emoji}</span>
                 <span className="history-item__condition">컨디션 {record.overallCondition}/5</span>
               </Card>
@@ -223,6 +296,37 @@ export function ConditionPage() {
         onComplete={handleCelebrationComplete}
         message={celebrationMessage}
         subMessage={celebrationSubMessage}
+      />
+
+      {/* 수정/삭제 바텀시트 */}
+      <BottomSheet
+        isOpen={showBottomSheet}
+        onClose={() => setShowBottomSheet(false)}
+        title="기록 관리"
+      >
+        <button className="bottom-sheet__action" onClick={handleEdit}>
+          <span className="bottom-sheet__action-icon">✏️</span>
+          <span className="bottom-sheet__action-text">수정하기</span>
+        </button>
+        <button className="bottom-sheet__action bottom-sheet__action--danger" onClick={handleDeleteClick}>
+          <span className="bottom-sheet__action-icon">🗑️</span>
+          <span className="bottom-sheet__action-text">삭제하기</span>
+        </button>
+        <button className="bottom-sheet__cancel" onClick={() => setShowBottomSheet(false)}>
+          취소
+        </button>
+      </BottomSheet>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="기록 삭제"
+        message="이 기록을 삭제하시겠어요? 삭제된 기록은 복구할 수 없습니다."
+        confirmText="삭제"
+        cancelText="취소"
+        variant="danger"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setShowDeleteConfirm(false)}
       />
     </div>
   );

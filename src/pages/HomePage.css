@@ -10,6 +10,28 @@
   padding: var(--spacing-md) 0;
 }
 
+/* 애니메이션 */
+.home-page__animation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.home-page__emoji {
+  font-size: 80px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 .home-page__greeting-text {
   font-size: var(--font-size-xl);
   font-weight: bold;

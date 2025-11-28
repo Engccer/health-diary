@@ -133,6 +133,11 @@ export function useGamification() {
     [progress.earnedBadges]
   );
 
+  // 진행 상황 초기화
+  const resetProgress = useCallback(() => {
+    setProgress(createInitialProgress());
+  }, [setProgress]);
+
   return {
     progress,
     currentLevel,
@@ -141,5 +146,6 @@ export function useGamification() {
     earnedBadges,
     unearnedBadges,
     addPoints,
+    resetProgress,
   };
 }

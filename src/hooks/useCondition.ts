@@ -10,40 +10,62 @@ export function useCondition() {
     []
   );
 
-  // 오늘 기록 가져오기
-  const getTodayRecord = useCallback(() => {
+  // 오늘의 모든 기록 가져오기
+  const getTodayRecords = useCallback(() => {
     const today = formatDate(new Date());
-    return conditions.find((c) => c.date === today);
+    return conditions
+      .filter((c) => c.date === today)
+      .sort((a, b) => b.timestamp - a.timestamp);
   }, [conditions]);
 
-  // 특정 날짜 기록 가져오기
+  // 오늘 기록 가져오기 (마지막 기록)
+  const getTodayRecord = useCallback(() => {
+    const todayRecords = getTodayRecords();
+    return todayRecords.length > 0 ? todayRecords[0] : undefined;
+  }, [getTodayRecords]);
+
+  // 특정 날짜의 모든 기록 가져오기
+  const getRecordsByDate = useCallback(
+    (date: string) => {
+      return conditions
+        .filter((c) => c.date === date)
+        .sort((a, b) => b.timestamp - a.timestamp);
+    },
+    [conditions]
+  );
+
+  // 특정 날짜 기록 가져오기 (마지막 기록, 하위 호환성)
   const getRecordByDate = useCallback(
     (date: string) => {
-      return conditions.find((c) => c.date === date);
+      const records = getRecordsByDate(date);
+      return records.length > 0 ? records[0] : undefined;
+    },
+    [getRecordsByDate]
+  );
+
+  // ID로 기록 가져오기
+  const getRecordById = useCallback(
+    (id: string) => {
+      return conditions.find((c) => c.id === id);
     },
     [conditions]
   );
 
-  // 최근 N일 기록 가져오기
+  // 최근 N개 기록 가져오기
   const getRecentRecords = useCallback(
-    (days: number) => {
-      const sorted = [...conditions].sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-      return sorted.slice(0, days);
+    (count: number) => {
+      const sorted = [...conditions].sort((a, b) => b.timestamp - a.timestamp);
+      return sorted.slice(0, count);
     },
     [conditions]
   );
 
-  // 기록 추가 또는 업데이트
+  // 새 기록 추가 (항상 새로 생성)
   const saveRecord = useCallback(
     (data: Partial<Omit<ConditionRecord, 'id' | 'date' | 'timestamp'>>) => {
-      const today = formatDate(new Date());
-      const existingIndex = conditions.findIndex((c) => c.date === today);
-
       const record: ConditionRecord = {
-        id: existingIndex >= 0 ? conditions[existingIndex].id : uuidv4(),
-        date: today,
+        id: uuidv4(),
+        date: formatDate(new Date()),
         timestamp: Date.now(),
         overallCondition: data.overallCondition ?? 3,
         symptoms: data.symptoms ?? createEmptySymptoms(),
@@ -52,18 +74,42 @@ export function useCondition() {
         note: data.note,
       };
 
-      if (existingIndex >= 0) {
-        const updated = [...conditions];
-        updated[existingIndex] = record;
-        setConditions(updated);
-      } else {
-        setConditions([...conditions, record]);
-      }
-
+      setConditions([...conditions, record]);
       return record;
     },
     [conditions, setConditions]
   );
+
+  // 기록 업데이트
+  const updateRecord = useCallback(
+    (id: string, data: Partial<Omit<ConditionRecord, 'id' | 'date'>>) => {
+      const index = conditions.findIndex((c) => c.id === id);
+      if (index === -1) return null;
+
+      const updated = [...conditions];
+      updated[index] = {
+        ...updated[index],
+        ...data,
+        timestamp: Date.now(),
+      };
+      setConditions(updated);
+      return updated[index];
+    },
+    [conditions, setConditions]
+  );
+
+  // 기록 삭제
+  const deleteRecord = useCallback(
+    (id: string) => {
+      setConditions(conditions.filter((c) => c.id !== id));
+    },
+    [conditions, setConditions]
+  );
+
+  // 모든 기록 삭제
+  const clearAllRecords = useCallback(() => {
+    setConditions([]);
+  }, [setConditions]);
 
   // 기록된 날 수 계산
   const getTotalRecordDays = useCallback(() => {
@@ -73,16 +119,28 @@ export function useCondition() {
 
   // 오늘 기록했는지 확인
   const hasRecordedToday = useCallback(() => {
-    return !!getTodayRecord();
-  }, [getTodayRecord]);
+    return getTodayRecords().length > 0;
+  }, [getTodayRecords]);
+
+  // 오늘 기록 횟수
+  const getTodayRecordCount = useCallback(() => {
+    return getTodayRecords().length;
+  }, [getTodayRecords]);
 
   return {
     conditions,
     getTodayRecord,
+    getTodayRecords,
     getRecordByDate,
+    getRecordsByDate,
+    getRecordById,
     getRecentRecords,
     saveRecord,
+    updateRecord,
+    deleteRecord,
+    clearAllRecords,
     getTotalRecordDays,
     hasRecordedToday,
+    getTodayRecordCount,
   };
 }

@@ -5,3 +5,4 @@ export { useGamification } from './useGamification';
 export { useSettings } from './useSettings';
 export { useToast } from './useToast';
 export { useReport } from './useReport';
+export { useServiceWorkerUpdate } from './useServiceWorkerUpdate';

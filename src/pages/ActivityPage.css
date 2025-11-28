@@ -177,3 +177,13 @@
   color: var(--color-text-secondary);
   margin-left: auto;
 }
+
+/* 수정 모드 버튼 */
+.activity-page__edit-actions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.activity-page__edit-actions > * {
+  flex: 1;
+}

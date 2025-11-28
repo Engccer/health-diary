@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MainLayout } from './components/layout';
-import { ToastContainer } from './components/common';
-import { useSettings, useToast } from './hooks';
+import { ToastContainer, UpdateBanner } from './components/common';
+import { useSettings, useToast, useServiceWorkerUpdate } from './hooks';
 import {
   HomePage,
   ConditionPage,
@@ -15,9 +15,15 @@ import './styles/global.css';
 // 전역 토스트 컨텍스트를 위한 컴포넌트
 function AppContent() {
   const { toasts, closeToast } = useToast();
+  const { showUpdatePrompt, handleUpdate, handleDismiss } = useServiceWorkerUpdate();
 
   return (
     <>
+      <UpdateBanner
+        show={showUpdatePrompt}
+        onUpdate={handleUpdate}
+        onDismiss={handleDismiss}
+      />
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />

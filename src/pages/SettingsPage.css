@@ -146,3 +146,22 @@
 .settings-info__text strong {
   color: var(--color-text-primary);
 }
+
+/* 삭제 버튼 */
+.settings-delete-btn {
+  color: var(--color-error);
+  border-color: var(--color-error);
+  margin-top: var(--spacing-sm);
+}
+
+.settings-delete-btn:hover,
+.settings-delete-btn:focus {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.settings-delete-success {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-success);
+  margin: var(--spacing-sm) 0 0 0;
+}

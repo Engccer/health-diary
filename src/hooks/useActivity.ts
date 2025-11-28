@@ -10,16 +10,43 @@ export function useActivity() {
     []
   );
 
-  // 오늘 기록 가져오기
-  const getTodayRecord = useCallback(() => {
+  // 오늘의 모든 기록 가져오기
+  const getTodayRecords = useCallback(() => {
     const today = formatDate(new Date());
-    return activities.find((a) => a.date === today);
+    return activities
+      .filter((a) => a.date === today)
+      .sort((a, b) => b.timestamp - a.timestamp);
   }, [activities]);
 
-  // 특정 날짜 기록 가져오기
+  // 오늘 기록 가져오기 (마지막 기록)
+  const getTodayRecord = useCallback(() => {
+    const todayRecords = getTodayRecords();
+    return todayRecords.length > 0 ? todayRecords[0] : undefined;
+  }, [getTodayRecords]);
+
+  // 특정 날짜의 모든 기록 가져오기
+  const getRecordsByDate = useCallback(
+    (date: string) => {
+      return activities
+        .filter((a) => a.date === date)
+        .sort((a, b) => b.timestamp - a.timestamp);
+    },
+    [activities]
+  );
+
+  // 특정 날짜 기록 가져오기 (마지막 기록, 하위 호환성)
   const getRecordByDate = useCallback(
     (date: string) => {
-      return activities.find((a) => a.date === date);
+      const records = getRecordsByDate(date);
+      return records.length > 0 ? records[0] : undefined;
+    },
+    [getRecordsByDate]
+  );
+
+  // ID로 기록 가져오기
+  const getRecordById = useCallback(
+    (id: string) => {
+      return activities.find((a) => a.id === id);
     },
     [activities]
   );
@@ -33,44 +60,63 @@ export function useActivity() {
     [activities]
   );
 
-  // 최근 N일 기록 가져오기
+  // 최근 N개 기록 가져오기
   const getRecentRecords = useCallback(
-    (days: number) => {
-      const sorted = [...activities].sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-      return sorted.slice(0, days);
+    (count: number) => {
+      const sorted = [...activities].sort((a, b) => b.timestamp - a.timestamp);
+      return sorted.slice(0, count);
     },
     [activities]
   );
 
-  // 기록 추가 또는 업데이트
+  // 새 기록 추가 (항상 새로 생성)
   const saveRecord = useCallback(
     (data: Partial<Omit<ActivityRecord, 'id' | 'date' | 'timestamp'>>) => {
-      const today = formatDate(new Date());
-      const existingIndex = activities.findIndex((a) => a.date === today);
-
       const record: ActivityRecord = {
-        id: existingIndex >= 0 ? activities[existingIndex].id : uuidv4(),
-        date: today,
+        id: uuidv4(),
+        date: formatDate(new Date()),
         timestamp: Date.now(),
         walking: data.walking ?? createEmptyWalking(),
         otherActivities: data.otherActivities,
         note: data.note,
       };
 
-      if (existingIndex >= 0) {
-        const updated = [...activities];
-        updated[existingIndex] = record;
-        setActivities(updated);
-      } else {
-        setActivities([...activities, record]);
-      }
-
+      setActivities([...activities, record]);
       return record;
     },
     [activities, setActivities]
   );
+
+  // 기록 업데이트
+  const updateRecord = useCallback(
+    (id: string, data: Partial<Omit<ActivityRecord, 'id' | 'date'>>) => {
+      const index = activities.findIndex((a) => a.id === id);
+      if (index === -1) return null;
+
+      const updated = [...activities];
+      updated[index] = {
+        ...updated[index],
+        ...data,
+        timestamp: Date.now(),
+      };
+      setActivities(updated);
+      return updated[index];
+    },
+    [activities, setActivities]
+  );
+
+  // 기록 삭제
+  const deleteRecord = useCallback(
+    (id: string) => {
+      setActivities(activities.filter((a) => a.id !== id));
+    },
+    [activities, setActivities]
+  );
+
+  // 모든 기록 삭제
+  const clearAllRecords = useCallback(() => {
+    setActivities([]);
+  }, [setActivities]);
 
   // 주간 총 걷기 시간
   const getWeeklyWalkingMinutes = useCallback(() => {
@@ -85,23 +131,38 @@ export function useActivity() {
 
   // 총 활동 기록 수
   const getTotalActivityDays = useCallback(() => {
-    return activities.filter((a) => a.walking.duration > 0).length;
+    const uniqueDates = new Set(
+      activities.filter((a) => a.walking.duration > 0).map((a) => a.date)
+    );
+    return uniqueDates.size;
   }, [activities]);
 
   // 오늘 기록했는지 확인
   const hasRecordedToday = useCallback(() => {
-    return !!getTodayRecord();
-  }, [getTodayRecord]);
+    return getTodayRecords().length > 0;
+  }, [getTodayRecords]);
+
+  // 오늘 기록 횟수
+  const getTodayRecordCount = useCallback(() => {
+    return getTodayRecords().length;
+  }, [getTodayRecords]);
 
   return {
     activities,
     getTodayRecord,
+    getTodayRecords,
     getRecordByDate,
+    getRecordsByDate,
+    getRecordById,
     getRecordsByMonth,
     getRecentRecords,
     saveRecord,
+    updateRecord,
+    deleteRecord,
+    clearAllRecords,
     getWeeklyWalkingMinutes,
     getTotalActivityDays,
     hasRecordedToday,
+    getTodayRecordCount,
   };
 }

@@ -1,33 +1,62 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Lottie from 'lottie-react';
 import { Card, Button } from '../components/common';
 import { StreakDisplay, LevelDisplay } from '../components/gamification';
 import { useCondition, useActivity, useGamification, useSettings } from '../hooks';
-import { formatKoreanDate } from '../utils/date';
+import { formatKoreanDate, getTimeOfDay } from '../utils/date';
+import { TIME_ANIMATIONS, TIME_GREETINGS, TIME_EMOJIS } from '../assets/timeAnimations';
 import './HomePage.css';
 
 export function HomePage() {
-  const { hasRecordedToday: hasConditionToday } = useCondition();
-  const { hasRecordedToday: hasActivityToday } = useActivity();
+  const { getTodayRecordCount: getConditionCount } = useCondition();
+  const { getTodayRecordCount: getActivityCount } = useActivity();
   const { progress, currentLevel, levelProgress } = useGamification();
   const { settings } = useSettings();
 
   const today = new Date();
-  const greeting = getGreeting();
+  const timeOfDay = getTimeOfDay();
+  const greeting = TIME_GREETINGS[timeOfDay];
+  const animationUrl = TIME_ANIMATIONS[timeOfDay];
+  const fallbackEmoji = TIME_EMOJIS[timeOfDay];
   const userName = settings.userName || '사용자';
 
-  function getGreeting() {
-    const hour = new Date().getHours();
-    if (hour < 12) return '좋은 아침이에요';
-    if (hour < 18) return '좋은 오후예요';
-    return '좋은 저녁이에요';
-  }
+  const [animationData, setAnimationData] = useState<object | null>(null);
+  const [animationError, setAnimationError] = useState(false);
+
+  // Lottie 애니메이션 로드
+  useEffect(() => {
+    setAnimationError(false);
+    fetch(animationUrl)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load');
+        return res.json();
+      })
+      .then(data => setAnimationData(data))
+      .catch(() => setAnimationError(true));
+  }, [animationUrl]);
+
+  const conditionCount = getConditionCount();
+  const activityCount = getActivityCount();
 
   return (
     <div className="page home-page">
-      {/* 인사 */}
+      {/* 인사 + 애니메이션 */}
       <section className="home-page__greeting" aria-label="인사">
+        <div className="home-page__animation">
+          {animationData && !animationError ? (
+            <Lottie
+              animationData={animationData}
+              loop
+              autoplay
+              style={{ width: 120, height: 120 }}
+            />
+          ) : (
+            <span className="home-page__emoji">{fallbackEmoji}</span>
+          )}
+        </div>
         <h2 className="home-page__greeting-text">
-          {greeting}, {userName}님! 👋
+          {greeting}, {userName}님!
         </h2>
         <p className="home-page__date">{formatKoreanDate(today)}</p>
       </section>
@@ -43,22 +72,28 @@ export function HomePage() {
       <section className="home-page__actions" aria-label="오늘의 기록">
         <Link to="/condition">
           <Button
-            variant={hasConditionToday() ? 'secondary' : 'primary'}
+            variant="primary"
             size="lg"
             fullWidth
-            icon={hasConditionToday() ? '✓' : '💪'}
+            icon="💪"
           >
-            {hasConditionToday() ? '컨디션 기록 완료' : '컨디션 기록하기'}
+            컨디션 기록하기
+            {conditionCount > 0 && (
+              <span className="home-page__record-count">오늘 {conditionCount}회</span>
+            )}
           </Button>
         </Link>
         <Link to="/activity">
           <Button
-            variant={hasActivityToday() ? 'secondary' : 'outline'}
+            variant="outline"
             size="lg"
             fullWidth
-            icon={hasActivityToday() ? '✓' : '🚶'}
+            icon="🚶"
           >
-            {hasActivityToday() ? '활동 기록 완료' : '활동 기록하기'}
+            활동 기록하기
+            {activityCount > 0 && (
+              <span className="home-page__record-count">오늘 {activityCount}회</span>
+            )}
           </Button>
         </Link>
       </section>
