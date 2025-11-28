@@ -2,8 +2,8 @@ import { useState, useRef } from 'react';
 import { Card, Button } from '../components/common';
 import { ConditionChart, ActivityChart } from '../components/report';
 import { useReport } from '../hooks';
-import { MOOD_OPTIONS, SYMPTOM_LABELS, Symptoms } from '../types';
-import { formatKoreanDate } from '../utils/date';
+import { MOOD_OPTIONS, SYMPTOM_LABELS, Symptoms, ConditionRecord, ActivityRecord } from '../types';
+import { formatKoreanDate, formatTime } from '../utils/date';
 import {
   canShare,
   captureElement,
@@ -34,33 +34,42 @@ export function ReportPage() {
     const dateStr = formatDateForShare(todayReport.date);
     let text = `📋 건강일기 - ${dateStr}\n\n`;
 
-    if (todayReport.condition) {
+    // 컨디션 기록들
+    if (todayReport.conditions.length > 0) {
+      const avgCondition = todayReport.conditions.reduce((sum, c) => sum + c.overallCondition, 0) / todayReport.conditions.length;
       const conditionLabel =
-        todayReport.condition.overallCondition <= 2 ? '안 좋음' :
-        todayReport.condition.overallCondition === 3 ? '보통' : '좋음';
-      text += `💪 컨디션: ${todayReport.condition.overallCondition}/5 (${conditionLabel})\n`;
+        avgCondition <= 2 ? '안 좋음' :
+        avgCondition <= 3 ? '보통' : '좋음';
+      text += `💪 컨디션: ${avgCondition.toFixed(1)}/5 (${conditionLabel}) - ${todayReport.conditions.length}회 기록\n`;
 
-      const moodOption = MOOD_OPTIONS.find(m => m.value === todayReport.condition?.mood);
-      if (moodOption) {
-        text += `😊 기분: ${moodOption.label}\n`;
+      // 모든 기분 취합
+      const moods = todayReport.conditions
+        .map(c => MOOD_OPTIONS.find(m => m.value === c.mood)?.label)
+        .filter(Boolean);
+      if (moods.length > 0) {
+        text += `😊 기분: ${[...new Set(moods)].join(', ')}\n`;
       }
 
-      if (todayReport.condition.symptoms) {
-        if (todayReport.condition.symptoms.noSymptom) {
-          text += `🩺 증상: 특별한 증상 없음\n`;
-        } else {
-          const symptomList = (Object.keys(todayReport.condition.symptoms) as Array<keyof Symptoms>)
-            .filter(key => key !== 'noSymptom' && todayReport.condition?.symptoms[key])
-            .map(key => SYMPTOM_LABELS[key]);
-          if (symptomList.length > 0) {
-            text += `🩺 증상: ${symptomList.join(', ')}\n`;
-          }
+      // 모든 증상 취합
+      const symptomSet = new Set<string>();
+      todayReport.conditions.forEach(c => {
+        if (c.symptoms && !c.symptoms.noSymptom) {
+          (Object.keys(c.symptoms) as Array<keyof Symptoms>)
+            .filter(key => key !== 'noSymptom' && c.symptoms[key])
+            .forEach(key => symptomSet.add(SYMPTOM_LABELS[key]));
         }
+      });
+      if (symptomSet.size > 0) {
+        text += `🩺 증상: ${[...symptomSet].join(', ')}\n`;
+      } else if (todayReport.conditions.some(c => c.symptoms?.noSymptom)) {
+        text += `🩺 증상: 특별한 증상 없음\n`;
       }
     }
 
-    if (todayReport.activity) {
-      text += `🚶 활동: ${todayReport.activity.walking.duration}분\n`;
+    // 활동 기록들
+    if (todayReport.activities.length > 0) {
+      const totalDuration = todayReport.activities.reduce((sum, a) => sum + a.walking.duration, 0);
+      text += `🚶 활동: 총 ${totalDuration}분 (${todayReport.activities.length}회)\n`;
     }
 
     text += `\n#건강일기`;
@@ -175,83 +184,75 @@ export function ReportPage() {
             </Card>
           ) : (
             <>
-              {/* 컨디션 요약 */}
-              {todayReport.condition && (
+              {/* 컨디션 타임라인 */}
+              {todayReport.conditions.length > 0 && (
                 <Card className="report-card">
-                  <h3 className="report-card__title">💪 컨디션</h3>
-                  <div className="report-condition">
-                    <div className="report-condition__score">
-                      <span className="report-condition__value">
-                        {todayReport.condition.overallCondition}
-                      </span>
-                      <span className="report-condition__max">/5</span>
-                    </div>
-                    <div className="report-condition__gauge">
-                      <div
-                        className="report-condition__fill"
-                        style={{ width: `${(todayReport.condition.overallCondition / 5) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* 기분 */}
-                  <div className="report-mood">
-                    <span className="report-mood__label">기분:</span>
-                    <span className="report-mood__emoji">
-                      {MOOD_OPTIONS.find(m => m.value === todayReport.condition?.mood)?.emoji}
-                    </span>
-                    <span className="report-mood__text">
-                      {MOOD_OPTIONS.find(m => m.value === todayReport.condition?.mood)?.label}
-                    </span>
-                  </div>
-
-                  {/* 증상 */}
-                  {todayReport.condition.symptoms && (
-                    <div className="report-symptoms">
-                      <span className="report-symptoms__label">증상:</span>
-                      {todayReport.condition.symptoms.noSymptom ? (
-                        <span className="report-symptoms__none">특별한 증상 없음 ✓</span>
-                      ) : (
-                        <div className="report-symptoms__list">
-                          {(Object.keys(todayReport.condition.symptoms) as Array<keyof Symptoms>)
-                            .filter(key => key !== 'noSymptom' && todayReport.condition?.symptoms[key])
-                            .map(key => (
-                              <span key={key} className="report-symptoms__tag">
-                                {SYMPTOM_LABELS[key]}
-                              </span>
-                            ))}
-                          {(Object.keys(todayReport.condition.symptoms) as Array<keyof Symptoms>)
-                            .filter(key => key !== 'noSymptom' && todayReport.condition?.symptoms[key])
-                            .length === 0 && (
-                            <span className="report-symptoms__none">기록된 증상 없음</span>
+                  <h3 className="report-card__title">
+                    💪 컨디션
+                    {todayReport.conditions.length > 1 && (
+                      <span className="report-card__count">{todayReport.conditions.length}회 기록</span>
+                    )}
+                  </h3>
+                  <div className="report-timeline">
+                    {todayReport.conditions.map((condition) => (
+                      <div key={condition.id} className="timeline-item">
+                        <span className="timeline-item__time">{formatTime(condition.timestamp)}</span>
+                        <div className="timeline-item__content">
+                          <div className="timeline-item__main">
+                            <span className="timeline-item__emoji">
+                              {MOOD_OPTIONS.find(m => m.value === condition.mood)?.emoji}
+                            </span>
+                            <span className="timeline-item__value">컨디션 {condition.overallCondition}/5</span>
+                          </div>
+                          {/* 증상 표시 */}
+                          {condition.symptoms && !condition.symptoms.noSymptom && (
+                            <div className="timeline-item__symptoms">
+                              {(Object.keys(condition.symptoms) as Array<keyof Symptoms>)
+                                .filter(key => key !== 'noSymptom' && condition.symptoms[key])
+                                .map(key => SYMPTOM_LABELS[key])
+                                .join(', ')}
+                            </div>
+                          )}
+                          {/* 메모 */}
+                          {condition.note && (
+                            <div className="timeline-item__note">{condition.note}</div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 메모 */}
-                  {todayReport.condition.note && (
-                    <div className="report-note">
-                      <span className="report-note__label">메모:</span>
-                      <p className="report-note__text">{todayReport.condition.note}</p>
-                    </div>
-                  )}
+                      </div>
+                    ))}
+                  </div>
                 </Card>
               )}
 
-              {/* 활동 요약 */}
-              {todayReport.activity && (
+              {/* 활동 타임라인 */}
+              {todayReport.activities.length > 0 && (
                 <Card className="report-card">
-                  <h3 className="report-card__title">🚶 활동</h3>
-                  <div className="report-activity">
-                    <span className="report-activity__value">
-                      {todayReport.activity.walking.duration}
-                    </span>
-                    <span className="report-activity__unit">분</span>
-                    {todayReport.activity.walking.duration >= 30 && (
-                      <span className="report-activity__badge">🎉 목표 달성!</span>
+                  <h3 className="report-card__title">
+                    🚶 활동
+                    {todayReport.activities.length > 1 && (
+                      <span className="report-card__count">
+                        총 {todayReport.activities.reduce((sum, a) => sum + a.walking.duration, 0)}분
+                      </span>
                     )}
+                  </h3>
+                  <div className="report-timeline">
+                    {todayReport.activities.map((activity) => (
+                      <div key={activity.id} className="timeline-item">
+                        <span className="timeline-item__time">{formatTime(activity.timestamp)}</span>
+                        <div className="timeline-item__content">
+                          <div className="timeline-item__main">
+                            <span className="timeline-item__value">{activity.walking.duration}분</span>
+                            {activity.walking.duration >= 30 && (
+                              <span className="timeline-item__badge">🎉</span>
+                            )}
+                          </div>
+                          {/* 메모 */}
+                          {activity.note && (
+                            <div className="timeline-item__note">{activity.note}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </Card>
               )}

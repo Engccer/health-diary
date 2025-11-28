@@ -312,3 +312,70 @@
   padding: var(--spacing-md);
   border-radius: var(--radius-lg);
 }
+
+/* 타임라인 스타일 */
+.report-card__count {
+  font-size: var(--font-size-sm);
+  font-weight: normal;
+  color: var(--text-secondary);
+  margin-left: var(--spacing-sm);
+}
+
+.report-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.timeline-item {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-primary);
+}
+
+.timeline-item__time {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.timeline-item__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.timeline-item__main {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.timeline-item__emoji {
+  font-size: var(--font-size-lg);
+}
+
+.timeline-item__value {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.timeline-item__badge {
+  margin-left: var(--spacing-xs);
+}
+
+.timeline-item__symptoms {
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+}
+
+.timeline-item__note {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+}

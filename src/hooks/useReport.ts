@@ -4,8 +4,8 @@ import { ConditionRecord, ActivityRecord, SYMPTOM_LABELS, Symptoms } from '../ty
 
 export interface DailyReportData {
   date: string;
-  condition: ConditionRecord | null;
-  activity: ActivityRecord | null;
+  conditions: ConditionRecord[];  // 모든 컨디션 기록 (타임라인용)
+  activities: ActivityRecord[];   // 모든 활동 기록 (타임라인용)
   hasData: boolean;
 }
 
@@ -28,14 +28,21 @@ export function useReport() {
 
   const getTodayReport = useMemo((): DailyReportData => {
     const today = new Date().toISOString().split('T')[0];
-    const condition = conditionRecords.find(r => r.date === today) || null;
-    const activity = activityRecords.find(r => r.date === today) || null;
+
+    // 오늘의 모든 기록을 시간순으로 정렬
+    const conditions = conditionRecords
+      .filter(r => r.date === today)
+      .sort((a, b) => a.timestamp - b.timestamp);
+
+    const activities = activityRecords
+      .filter(r => r.date === today)
+      .sort((a, b) => a.timestamp - b.timestamp);
 
     return {
       date: today,
-      condition,
-      activity,
-      hasData: !!(condition || activity),
+      conditions,
+      activities,
+      hasData: conditions.length > 0 || activities.length > 0,
     };
   }, [conditionRecords, activityRecords]);
 
@@ -50,24 +57,28 @@ export function useReport() {
       dates.push(date.toISOString().split('T')[0]);
     }
 
-    // 컨디션 데이터
+    // 컨디션 데이터 (같은 날 여러 기록 → 평균값)
     const conditionData = dates.map(date => {
-      const record = conditionRecords.find(r => r.date === date);
+      const dayRecords = conditionRecords.filter(r => r.date === date);
       const dayOfWeek = new Date(date).getDay();
+      const avgValue = dayRecords.length > 0
+        ? dayRecords.reduce((sum, r) => sum + r.overallCondition, 0) / dayRecords.length
+        : null;
       return {
         date,
-        value: record?.overallCondition ?? null,
+        value: avgValue,
         dayLabel: DAY_LABELS[dayOfWeek],
       };
     });
 
-    // 활동 데이터
+    // 활동 데이터 (같은 날 여러 기록 → 합계)
     const activityData = dates.map(date => {
-      const record = activityRecords.find(r => r.date === date);
+      const dayRecords = activityRecords.filter(r => r.date === date);
       const dayOfWeek = new Date(date).getDay();
+      const totalValue = dayRecords.reduce((sum, r) => sum + r.walking.duration, 0);
       return {
         date,
-        value: record?.walking.duration ?? 0,
+        value: totalValue,
         dayLabel: DAY_LABELS[dayOfWeek],
       };
     });
