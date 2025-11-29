@@ -8,3 +8,5 @@ export type { CelebrationType } from './Celebration';
 export { UpdateBanner } from './UpdateBanner';
 export { BottomSheet } from './BottomSheet';
 export { ConfirmDialog } from './ConfirmDialog';
+export { CollapsibleCard } from './CollapsibleCard';
+export { ChangelogModal } from './ChangelogModal';

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Card, Button, ConfirmDialog } from '../components/common';
+import { Card, Button, ConfirmDialog, ChangelogModal } from '../components/common';
 import { useSettings, useCondition, useActivity, useGamification } from '../hooks';
 import { FONT_SIZE_LABELS, FontSize } from '../types';
+import { CURRENT_VERSION } from '../data/changelog';
 import './SettingsPage.css';
 
 export function SettingsPage() {
@@ -12,6 +13,7 @@ export function SettingsPage() {
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
 
   const handleDeleteAllData = () => {
     clearConditions();
@@ -93,10 +95,10 @@ export function SettingsPage() {
           className="settings-delete-btn"
           onClick={() => setShowDeleteConfirm(true)}
         >
-          🗑️ 모든 데이터 삭제
+          모든 데이터 삭제
         </Button>
         {deleteSuccess && (
-          <p className="settings-delete-success">✓ 모든 데이터가 삭제되었습니다.</p>
+          <p className="settings-delete-success">모든 데이터가 삭제되었습니다.</p>
         )}
       </section>
 
@@ -109,9 +111,16 @@ export function SettingsPage() {
             <br />
             위암 회복기 건강 관리 앱
             <br />
-            버전 1.0.0
+            버전 {CURRENT_VERSION}
           </p>
         </Card>
+        <Button
+          variant="outline"
+          fullWidth
+          onClick={() => setShowChangelog(true)}
+        >
+          업데이트 기록 보기
+        </Button>
       </section>
 
       {/* 삭제 확인 다이얼로그 */}
@@ -124,6 +133,12 @@ export function SettingsPage() {
         variant="danger"
         onConfirm={handleDeleteAllData}
         onCancel={() => setShowDeleteConfirm(false)}
+      />
+
+      {/* 업데이트 기록 모달 */}
+      <ChangelogModal
+        isOpen={showChangelog}
+        onClose={() => setShowChangelog(false)}
       />
     </div>
   );

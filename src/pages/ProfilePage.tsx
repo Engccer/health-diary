@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button } from '../components/common';
-import { StreakDisplay, LevelDisplay, BadgeCard } from '../components/gamification';
+import { Card, Button, CollapsibleCard } from '../components/common';
+import { BadgeCard } from '../components/gamification';
 import { useGamification, useCondition, useActivity, useSettings } from '../hooks';
 import { BADGES } from '../data/badges';
 import { HEALTH_ARTICLES } from '../data/healthInfo';
@@ -72,51 +72,100 @@ export function ProfilePage() {
         </p>
       </section>
 
-      {/* 설정 링크 (상단) */}
+      {/* 설정 링크 */}
       <Link to="/settings">
         <Button variant="outline" size="md" fullWidth icon="⚙️">
           설정
         </Button>
       </Link>
 
-      {/* 스트릭 */}
-      <StreakDisplay streak={progress.currentStreak} size="lg" />
+      {/* 나의 현황 (접기/펼치기) */}
+      <CollapsibleCard
+        defaultExpanded={false}
+        ariaLabel="나의 현황 펼치기/접기"
+        summary={
+          <div className="status-summary">
+            <div className="status-summary__item">
+              <span className="status-summary__icon">{currentLevel.icon}</span>
+              <span className="status-summary__text">{currentLevel.name}</span>
+            </div>
+            <div className="status-summary__divider" aria-hidden="true" />
+            <div className="status-summary__item">
+              <span className="status-summary__icon">🔥</span>
+              <span className="status-summary__text">{progress.currentStreak}일</span>
+            </div>
+            <div className="status-summary__divider" aria-hidden="true" />
+            <div className="status-summary__item">
+              <span className="status-summary__icon">⭐</span>
+              <span className="status-summary__text">{progress.totalPoints}P</span>
+            </div>
+          </div>
+        }
+      >
+        {/* 레벨 상세 */}
+        <div className="status-detail">
+          <div className="level-detail">
+            <div className="level-detail__header">
+              <span className="level-detail__icon">{currentLevel.icon}</span>
+              <div className="level-detail__info">
+                <span className="level-detail__name">Lv.{currentLevel.level} {currentLevel.name}</span>
+                <span className="level-detail__points">{progress.totalPoints.toLocaleString()}P</span>
+              </div>
+            </div>
+            <div className="level-detail__progress">
+              <div
+                className="level-detail__bar"
+                style={{ width: `${levelProgress}%` }}
+                role="progressbar"
+                aria-valuenow={levelProgress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              />
+            </div>
+            <span className="level-detail__progress-text">다음 레벨까지 {100 - levelProgress}%</span>
+          </div>
 
-      {/* 레벨 */}
-      <LevelDisplay
-        level={currentLevel}
-        points={progress.totalPoints}
-        progress={levelProgress}
-      />
+          {/* 스트릭 상세 */}
+          <div className="streak-detail">
+            <div className="streak-detail__current">
+              <span className="streak-detail__icon">🔥</span>
+              <span className="streak-detail__value">{progress.currentStreak}</span>
+              <span className="streak-detail__unit">일 연속</span>
+            </div>
+            <span className="streak-detail__best">최장 기록: {progress.longestStreak}일</span>
+          </div>
 
-      {/* 통계 */}
-      <section className="stats-section" aria-label="통계">
-        <h3 className="stats-title">나의 기록</h3>
-        <div className="stats-grid">
-          <Card className="stat-card">
-            <span className="stat-value">{progress.totalRecordDays}</span>
-            <span className="stat-label">총 기록일</span>
-          </Card>
-          <Card className="stat-card">
-            <span className="stat-value">{progress.longestStreak}</span>
-            <span className="stat-label">최장 연속</span>
-          </Card>
-          <Card className="stat-card">
-            <span className="stat-value">{totalConditionDays}</span>
-            <span className="stat-label">컨디션 기록</span>
-          </Card>
-          <Card className="stat-card">
-            <span className="stat-value">{totalActivityDays}</span>
-            <span className="stat-label">활동 기록</span>
-          </Card>
+          {/* 통계 그리드 */}
+          <div className="stats-grid">
+            <div className="stat-item">
+              <span className="stat-item__value">{progress.totalRecordDays}</span>
+              <span className="stat-item__label">총 기록일</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item__value">{totalConditionDays}</span>
+              <span className="stat-item__label">컨디션</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item__value">{totalActivityDays}</span>
+              <span className="stat-item__label">활동</span>
+            </div>
+          </div>
         </div>
-      </section>
+      </CollapsibleCard>
 
-      {/* 뱃지 */}
-      <section className="badges-section" aria-label="뱃지">
-        <h3 className="badges-title">
-          뱃지 ({earnedBadges.length}/{BADGES.length})
-        </h3>
+      {/* 뱃지 컬렉션 (접기/펼치기) */}
+      <CollapsibleCard
+        defaultExpanded={false}
+        ariaLabel="뱃지 컬렉션 펼치기/접기"
+        summary={
+          <div className="badges-summary">
+            <span className="badges-summary__title">뱃지 컬렉션</span>
+            <span className="badges-summary__count">
+              {earnedBadges.length}/{BADGES.length} 획득
+            </span>
+          </div>
+        }
+      >
         <div className="badges-grid">
           {BADGES.map((badge) => (
             <BadgeCard
@@ -126,26 +175,29 @@ export function ProfilePage() {
             />
           ))}
         </div>
-      </section>
+      </CollapsibleCard>
 
-      {/* 건강 정보 (접이식) */}
-      <section className="health-info-section" aria-label="건강 정보">
+      {/* 건강 정보 섹션 */}
+      <section className="health-info-section" aria-labelledby="health-info-heading">
         <button
           className="health-info-header"
           onClick={() => setIsHealthInfoExpanded(!isHealthInfoExpanded)}
           aria-expanded={isHealthInfoExpanded}
           aria-controls="health-info-content"
         >
-          <h3 className="health-info-title">건강 정보</h3>
-          <span className={`health-info-arrow ${isHealthInfoExpanded ? 'health-info-arrow--expanded' : ''}`} aria-hidden="true">
-            ▶
+          <h2 id="health-info-heading" className="health-info-title">건강 정보</h2>
+          <span
+            className={`health-info-arrow ${isHealthInfoExpanded ? 'health-info-arrow--expanded' : ''}`}
+            aria-hidden="true"
+          >
+            ▼
           </span>
         </button>
 
-        {/* 기사 목록 */}
         <div
           id="health-info-content"
           className={`health-info-content ${isHealthInfoExpanded ? 'health-info-content--expanded' : ''}`}
+          aria-hidden={!isHealthInfoExpanded}
         >
           <div className="article-list" role="list">
             {HEALTH_ARTICLES.map((article) => (
@@ -160,7 +212,7 @@ export function ProfilePage() {
                   {article.icon}
                 </span>
                 <div className="article-card__content">
-                  <h4 className="article-card__title">{article.title}</h4>
+                  <h3 className="article-card__title">{article.title}</h3>
                   <p className="article-card__summary">{article.summary}</p>
                   <span className="article-card__meta">
                     {CATEGORY_LABELS[article.category]} · {article.readTime}분

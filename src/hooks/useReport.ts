@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useCondition, useActivity } from './index';
 import { ConditionRecord, ActivityRecord, SYMPTOM_LABELS, Symptoms } from '../types';
+import { formatDate } from '../utils/date';
 
 export interface DailyReportData {
   date: string;
@@ -27,7 +28,7 @@ export function useReport() {
   const { activities: activityRecords } = useActivity();
 
   const getTodayReport = useMemo((): DailyReportData => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatDate(new Date());
 
     // 오늘의 모든 기록을 시간순으로 정렬
     const conditions = conditionRecords
@@ -54,7 +55,7 @@ export function useReport() {
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
-      dates.push(date.toISOString().split('T')[0]);
+      dates.push(formatDate(date));
     }
 
     // 컨디션 데이터 (같은 날 여러 기록 → 평균값)

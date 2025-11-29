@@ -27,68 +27,191 @@
   color: var(--color-text-secondary);
 }
 
-/* 통계 */
-.stats-section {
+/* 설정 링크 */
+.profile-page a {
+  text-decoration: none;
+}
+
+/* 나의 현황 요약 */
+.status-summary {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: var(--spacing-md);
 }
 
-.stats-title {
+.status-summary__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.status-summary__icon {
+  font-size: var(--font-size-lg);
+}
+
+.status-summary__text {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.status-summary__divider {
+  width: 1px;
+  height: 16px;
+  background-color: var(--color-border);
+}
+
+/* 나의 현황 상세 */
+.status-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* 레벨 상세 */
+.level-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.level-detail__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.level-detail__icon {
+  font-size: var(--font-size-2xl);
+}
+
+.level-detail__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.level-detail__name {
   font-size: var(--font-size-lg);
   font-weight: bold;
   color: var(--color-text-primary);
-  margin: 0;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md);
+.level-detail__points {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
 }
 
-.stat-card {
-  text-align: center;
-  padding: var(--spacing-lg);
+.level-detail__progress {
+  height: 8px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
 }
 
-.stat-value {
-  display: block;
+.level-detail__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-base);
+}
+
+.level-detail__progress-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+/* 스트릭 상세 */
+.streak-detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+.streak-detail__current {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+}
+
+.streak-detail__icon {
+  font-size: var(--font-size-xl);
+}
+
+.streak-detail__value {
   font-size: var(--font-size-2xl);
   font-weight: bold;
   color: var(--color-primary);
 }
 
-.stat-label {
-  display: block;
+.streak-detail__unit {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+.streak-detail__best {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
-  margin-top: var(--spacing-xs);
 }
 
-/* 뱃지 */
-.badges-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.badges-title {
-  font-size: var(--font-size-lg);
-  font-weight: bold;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.badges-grid {
+/* 통계 그리드 (CollapsibleCard 내부) */
+.stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-sm);
 }
 
-/* 설정 링크 */
-.profile-page a {
-  text-decoration: none;
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+.stat-item__value {
+  font-size: var(--font-size-xl);
+  font-weight: bold;
+  color: var(--color-primary);
+}
+
+.stat-item__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+/* 뱃지 요약 */
+.badges-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.badges-summary__title {
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.badges-summary__count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-tertiary);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+}
+
+/* 뱃지 그리드 */
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
 }
 
 /* 건강 정보 섹션 (접이식) */
@@ -107,6 +230,7 @@
   width: 100%;
   padding: var(--spacing-md) var(--spacing-lg);
   background: none;
+  border: none;
   cursor: pointer;
   transition: background-color var(--transition-fast);
 }
@@ -116,7 +240,8 @@
 }
 
 .health-info-header:focus-visible {
-  box-shadow: var(--focus-ring);
+  outline: none;
+  box-shadow: inset var(--focus-ring);
 }
 
 .health-info-title {
@@ -127,13 +252,13 @@
 }
 
 .health-info-arrow {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   transition: transform var(--transition-base);
 }
 
 .health-info-arrow--expanded {
-  transform: rotate(90deg);
+  transform: rotate(180deg);
 }
 
 .health-info-content {
@@ -149,6 +274,7 @@
 
 .health-info-content .article-list {
   padding: 0 var(--spacing-lg) var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
 }
 
 /* 기사 목록 */
@@ -201,7 +327,10 @@
   font-size: var(--font-size-base);
   font-weight: 500;
   color: var(--color-primary);
+  background: none;
+  border: none;
   border-radius: var(--radius-md);
+  cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 

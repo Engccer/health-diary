@@ -1,0 +1,47 @@
+export interface ChangelogEntry {
+  version: string;
+  date: string;
+  title: string;
+  changes: string[];
+}
+
+export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.2.0',
+    date: '2025-11-30',
+    title: '보고서 버그 수정 및 UI 개선',
+    changes: [
+      '보고서가 오늘 기록을 제대로 표시하지 않던 문제 수정',
+      '나 탭 UI 개선 - 레벨/뱃지 정보를 접기/펼치기로 정리',
+      '업데이트 기록 확인 기능 추가',
+      '건강 정보 섹션 표시 버그 수정',
+    ],
+  },
+  {
+    version: '1.1.0',
+    date: '2025-11-29',
+    title: '탭 네비게이션 및 다중 기록 지원',
+    changes: [
+      '탭 네비게이션 개선',
+      '하루에 여러 번 기록 가능',
+      'PWA 업데이트 알림 추가',
+      '시간대별 인사말 추가',
+      '보고서 공유 기능 추가',
+    ],
+  },
+  {
+    version: '1.0.0',
+    date: '2025-11-28',
+    title: '첫 출시',
+    changes: [
+      '컨디션 기록 기능 (1-5점, 증상, 기분, 식사 횟수)',
+      '활동 기록 기능 (걷기/운동 시간)',
+      '게이미피케이션 (포인트, 레벨, 배지, 스트릭)',
+      '일간/주간 보고서',
+      '건강 정보 콘텐츠',
+      'PWA 지원 (오프라인, 설치 가능)',
+    ],
+  },
+];
+
+export const CURRENT_VERSION = '1.2.0';
