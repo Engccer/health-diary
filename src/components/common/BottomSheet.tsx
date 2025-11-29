@@ -55,11 +55,20 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
     >
       <div className="bottom-sheet" ref={sheetRef}>
         <div className="bottom-sheet__handle" aria-hidden="true" />
-        {title && (
-          <h3 id="bottom-sheet-title" className="bottom-sheet__title">
-            {title}
-          </h3>
-        )}
+        <div className="bottom-sheet__header">
+          {title && (
+            <h3 id="bottom-sheet-title" className="bottom-sheet__title">
+              {title}
+            </h3>
+          )}
+          <button
+            className="bottom-sheet__close"
+            onClick={onClose}
+            aria-label="닫기"
+          >
+            ✕
+          </button>
+        </div>
         <div className="bottom-sheet__content">
           {children}
         </div>

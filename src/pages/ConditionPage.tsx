@@ -13,10 +13,10 @@ export function ConditionPage() {
   const recentRecords = getRecentRecords(7);
   const todayCount = getTodayRecordCount();
 
-  // 항상 기본값으로 시작 (이전 기록으로 채우지 않음)
-  const [overallCondition, setOverallCondition] = useState<1 | 2 | 3 | 4 | 5>(3);
+  // 항상 선택 없음으로 시작
+  const [overallCondition, setOverallCondition] = useState<1 | 2 | 3 | 4 | 5 | null>(null);
   const [symptoms, setSymptoms] = useState<Symptoms>(createEmptySymptoms());
-  const [mood, setMood] = useState<1 | 2 | 3 | 4 | 5>(3);
+  const [mood, setMood] = useState<1 | 2 | 3 | 4 | 5 | null>(null);
   const [note, setNote] = useState('');
   const [saved, setSaved] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -49,14 +49,16 @@ export function ConditionPage() {
   };
 
   const resetForm = () => {
-    setOverallCondition(3);
+    setOverallCondition(null);
     setSymptoms(createEmptySymptoms());
-    setMood(3);
+    setMood(null);
     setNote('');
     setSaved(false);
   };
 
   const handleSave = () => {
+    if (overallCondition === null || mood === null) return;
+
     const isFirstRecordToday = todayCount === 0;
     saveRecord({
       overallCondition,
@@ -119,7 +121,7 @@ export function ConditionPage() {
 
   // 수정 저장
   const handleUpdateSave = () => {
-    if (!editingRecord) return;
+    if (!editingRecord || overallCondition === null || mood === null) return;
     updateRecord(editingRecord.id, {
       overallCondition,
       symptoms,
@@ -177,7 +179,7 @@ export function ConditionPage() {
           ))}
         </div>
         <p className="condition-slider__label">
-          {overallCondition <= 2 ? '안 좋음' : overallCondition === 3 ? '보통' : '좋음'}
+          {overallCondition === null ? '선택해 주세요' : overallCondition <= 2 ? '안 좋음' : overallCondition === 3 ? '보통' : '좋음'}
         </p>
       </section>
 
@@ -259,9 +261,9 @@ export function ConditionPage() {
           size="lg"
           fullWidth
           onClick={handleSave}
-          disabled={saved}
+          disabled={saved || overallCondition === null || mood === null}
         >
-          {saved ? '✓ 저장 완료' : '저장하기'}
+          {saved ? '✓ 저장 완료' : overallCondition === null || mood === null ? '컨디션과 기분을 선택해 주세요' : '저장하기'}
         </Button>
       )}
 

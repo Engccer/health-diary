@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button, CollapsibleCard, ChangelogModal } from '../components/common';
+import { Card, Button, CollapsibleCard } from '../components/common';
 import { BadgeCard } from '../components/gamification';
 import { useGamification, useCondition, useActivity, useSettings } from '../hooks';
 import { BADGES } from '../data/badges';
@@ -16,7 +16,6 @@ export function ProfilePage() {
 
   const [selectedArticle, setSelectedArticle] = useState<HealthArticle | null>(null);
   const [isHealthInfoExpanded, setIsHealthInfoExpanded] = useState(false);
-  const [showChangelog, setShowChangelog] = useState(false);
 
   const totalConditionDays = getTotalRecordDays();
   const totalActivityDays = getTotalActivityDays();
@@ -73,23 +72,12 @@ export function ProfilePage() {
         </p>
       </section>
 
-      {/* 설정 및 업데이트 기록 버튼 */}
-      <div className="profile-actions">
-        <Link to="/settings">
-          <Button variant="outline" size="md" fullWidth icon="⚙️">
-            설정
-          </Button>
-        </Link>
-        <Button
-          variant="outline"
-          size="md"
-          fullWidth
-          icon="📋"
-          onClick={() => setShowChangelog(true)}
-        >
-          업데이트 기록
+      {/* 설정 버튼 */}
+      <Link to="/settings" className="profile-settings-link">
+        <Button variant="outline" size="md" fullWidth icon="⚙️">
+          설정
         </Button>
-      </div>
+      </Link>
 
       {/* 나의 현황 (접기/펼치기) */}
       <CollapsibleCard
@@ -109,7 +97,7 @@ export function ProfilePage() {
             <div className="status-summary__divider" aria-hidden="true" />
             <div className="status-summary__item">
               <span className="status-summary__icon">⭐</span>
-              <span className="status-summary__text">{progress.totalPoints}P</span>
+              <span className="status-summary__text">{progress.totalPoints}점</span>
             </div>
           </div>
         }
@@ -120,8 +108,8 @@ export function ProfilePage() {
             <div className="level-detail__header">
               <span className="level-detail__icon">{currentLevel.icon}</span>
               <div className="level-detail__info">
-                <span className="level-detail__name">Lv.{currentLevel.level} {currentLevel.name}</span>
-                <span className="level-detail__points">{progress.totalPoints.toLocaleString()}P</span>
+                <span className="level-detail__name">{currentLevel.level}단계 {currentLevel.name}</span>
+                <span className="level-detail__points">{progress.totalPoints.toLocaleString()}점</span>
               </div>
             </div>
             <div className="level-detail__progress">
@@ -178,6 +166,7 @@ export function ProfilePage() {
           </div>
         }
       >
+        <p className="badges-hint">연속 기록과 특별한 업적을 달성하면 뱃지를 받아요!</p>
         <div className="badges-grid">
           {BADGES.map((badge) => (
             <BadgeCard
@@ -236,11 +225,6 @@ export function ProfilePage() {
         </div>
       </section>
 
-      {/* 업데이트 기록 모달 */}
-      <ChangelogModal
-        isOpen={showChangelog}
-        onClose={() => setShowChangelog(false)}
-      />
     </div>
   );
 }

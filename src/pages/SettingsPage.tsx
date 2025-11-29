@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, Button, ConfirmDialog, ChangelogModal } from '../components/common';
 import { useSettings, useCondition, useActivity, useGamification } from '../hooks';
 import { FONT_SIZE_LABELS, FontSize } from '../types';
@@ -6,6 +7,7 @@ import { CURRENT_VERSION } from '../data/changelog';
 import './SettingsPage.css';
 
 export function SettingsPage() {
+  const navigate = useNavigate();
   const { settings, setFontSize, setHighContrast, setUserName } = useSettings();
   const { clearAllRecords: clearConditions } = useCondition();
   const { clearAllRecords: clearActivities } = useActivity();
@@ -28,6 +30,15 @@ export function SettingsPage() {
 
   return (
     <div className="page settings-page">
+      {/* 닫기 버튼 */}
+      <button
+        className="settings-close-btn"
+        onClick={() => navigate(-1)}
+        aria-label="설정 닫기"
+      >
+        ← 돌아가기
+      </button>
+
       {/* 사용자 이름 */}
       <section className="settings-section">
         <h2 className="settings-section__title">사용자 이름</h2>

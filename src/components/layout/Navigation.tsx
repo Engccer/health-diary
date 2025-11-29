@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import './Navigation.css';
 
 interface NavItem {
@@ -16,17 +16,25 @@ const navItems: NavItem[] = [
 ];
 
 export function Navigation() {
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
+
   return (
     <nav className="navigation" aria-label="메인 메뉴">
-      <ul className="navigation__list">
+      <ul className="navigation__list" role="tablist">
         {navItems.map((item) => (
-          <li key={item.to} className="navigation__item">
+          <li key={item.to} className="navigation__item" role="presentation">
             <NavLink
               to={item.to}
-              className={({ isActive }) =>
-                `navigation__link ${isActive ? 'navigation__link--active' : ''}`
-              }
-              aria-label={item.label}
+              className={`navigation__link ${isActive(item.to) ? 'navigation__link--active' : ''}`}
+              role="tab"
+              aria-selected={isActive(item.to)}
+              aria-label={`${item.label} 탭${isActive(item.to) ? ', 현재 페이지' : ''}`}
+              tabIndex={isActive(item.to) ? 0 : -1}
             >
               <span className="navigation__icon" aria-hidden="true">
                 {item.icon}

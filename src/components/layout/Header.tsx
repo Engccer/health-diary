@@ -36,6 +36,8 @@ export function Header({ title, showBack = false }: HeaderProps) {
         return '활동 기록';
       case '/info':
         return '건강 정보';
+      case '/report':
+        return '보고서';
       case '/profile':
         return '내 정보';
       case '/settings':

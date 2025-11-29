@@ -27,18 +27,10 @@
   color: var(--color-text-secondary);
 }
 
-/* 설정/업데이트 버튼 영역 */
-.profile-actions {
-  display: flex;
-  gap: var(--spacing-md);
-}
-
-.profile-actions > * {
-  flex: 1;
-}
-
-.profile-actions a {
+/* 설정 버튼 링크 */
+.profile-settings-link {
   text-decoration: none;
+  display: block;
 }
 
 /* 나의 현황 요약 */
@@ -214,6 +206,14 @@
   background-color: var(--color-bg-tertiary);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-full);
+}
+
+/* 뱃지 힌트 */
+.badges-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0 0 var(--spacing-md) 0;
 }
 
 /* 뱃지 그리드 */
