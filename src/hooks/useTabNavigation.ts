@@ -5,8 +5,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const TAB_ORDER = ['/', '/condition', '/activity', '/report', '/profile'];
 
 // 스와이프 감도 설정
-const SWIPE_THRESHOLD = 50; // 최소 스와이프 거리 (px)
-const SWIPE_TIMEOUT = 300;  // 최대 스와이프 시간 (ms)
+const SWIPE_THRESHOLD = 30; // 최소 스와이프 거리 (px) - iOS에서 더 잘 감지되도록 낮춤
+const SWIPE_TIMEOUT = 500;  // 최대 스와이프 시간 (ms) - 여유있게 조정
+const SWIPE_ANGLE_THRESHOLD = 30; // 수평 스와이프 판정 각도 (도)
 
 interface TouchData {
   startX: number;
@@ -87,12 +88,15 @@ export function useTabNavigation() {
     const deltaY = touch.clientY - touchRef.current.startY;
     const deltaTime = Date.now() - touchRef.current.startTime;
 
-    // 스와이프 조건 확인
-    // - 가로 이동이 세로 이동보다 커야 함 (수평 스와이프)
+    // 스와이프 조건 확인 (각도 기반)
+    // - 수평 방향 스와이프인지 각도로 판별
     // - 최소 거리 이상 이동해야 함
     // - 일정 시간 내에 완료되어야 함
+    const angle = Math.abs(Math.atan2(deltaY, deltaX) * 180 / Math.PI);
+    const isHorizontalSwipe = angle < SWIPE_ANGLE_THRESHOLD || angle > (180 - SWIPE_ANGLE_THRESHOLD);
+
     if (
-      Math.abs(deltaX) > Math.abs(deltaY) &&
+      isHorizontalSwipe &&
       Math.abs(deltaX) > SWIPE_THRESHOLD &&
       deltaTime < SWIPE_TIMEOUT
     ) {

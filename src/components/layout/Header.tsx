@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Header.css';
 
@@ -9,6 +10,15 @@ interface HeaderProps {
 export function Header({ title, showBack = false }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
+  // 탭 전환 시 헤딩으로 포커스 이동 (스크린 리더 접근성)
+  useEffect(() => {
+    // 라우트가 변경될 때마다 헤딩으로 포커스 이동
+    if (titleRef.current) {
+      titleRef.current.focus();
+    }
+  }, [location.pathname]);
 
   const handleBack = () => {
     navigate(-1);
@@ -47,7 +57,7 @@ export function Header({ title, showBack = false }: HeaderProps) {
             ←
           </button>
         )}
-        <h1 className="header__title">{getTitle()}</h1>
+        <h1 ref={titleRef} className="header__title" tabIndex={-1}>{getTitle()}</h1>
       </div>
     </header>
   );

@@ -42,6 +42,7 @@ export function CollapsibleCard({
       </button>
       <div
         className={`collapsible-card__content ${isExpanded ? 'collapsible-card__content--expanded' : ''}`}
+        aria-hidden={!isExpanded}
       >
         <div className="collapsible-card__inner">{children}</div>
       </div>

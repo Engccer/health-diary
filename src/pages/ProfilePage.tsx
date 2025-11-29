@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button, CollapsibleCard } from '../components/common';
+import { Card, Button, CollapsibleCard, ChangelogModal } from '../components/common';
 import { BadgeCard } from '../components/gamification';
 import { useGamification, useCondition, useActivity, useSettings } from '../hooks';
 import { BADGES } from '../data/badges';
@@ -16,6 +16,7 @@ export function ProfilePage() {
 
   const [selectedArticle, setSelectedArticle] = useState<HealthArticle | null>(null);
   const [isHealthInfoExpanded, setIsHealthInfoExpanded] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
 
   const totalConditionDays = getTotalRecordDays();
   const totalActivityDays = getTotalActivityDays();
@@ -72,12 +73,23 @@ export function ProfilePage() {
         </p>
       </section>
 
-      {/* 설정 링크 */}
-      <Link to="/settings">
-        <Button variant="outline" size="md" fullWidth icon="⚙️">
-          설정
+      {/* 설정 및 업데이트 기록 버튼 */}
+      <div className="profile-actions">
+        <Link to="/settings">
+          <Button variant="outline" size="md" fullWidth icon="⚙️">
+            설정
+          </Button>
+        </Link>
+        <Button
+          variant="outline"
+          size="md"
+          fullWidth
+          icon="📋"
+          onClick={() => setShowChangelog(true)}
+        >
+          업데이트 기록
         </Button>
-      </Link>
+      </div>
 
       {/* 나의 현황 (접기/펼치기) */}
       <CollapsibleCard
@@ -223,6 +235,12 @@ export function ProfilePage() {
           </div>
         </div>
       </section>
+
+      {/* 업데이트 기록 모달 */}
+      <ChangelogModal
+        isOpen={showChangelog}
+        onClose={() => setShowChangelog(false)}
+      />
     </div>
   );
 }

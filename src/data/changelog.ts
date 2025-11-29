@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.2.1',
+    date: '2025-11-30',
+    title: '접근성 개선',
+    changes: [
+      '나 탭에 설정/업데이트 기록 버튼 추가',
+      '스크린 리더 접근성 개선 (접힌 콘텐츠 숨김 처리)',
+      '탭 전환 시 스크린 리더 포커스가 헤딩으로 이동',
+      '스와이프 탭 전환 감도 개선',
+    ],
+  },
+  {
     version: '1.2.0',
     date: '2025-11-30',
     title: '보고서 버그 수정 및 UI 개선',
@@ -44,4 +55,4 @@ export const CHANGELOG: ChangelogEntry[] = [
   },
 ];
 
-export const CURRENT_VERSION = '1.2.0';
+export const CURRENT_VERSION = '1.2.1';

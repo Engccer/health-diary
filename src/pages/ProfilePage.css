@@ -27,8 +27,17 @@
   color: var(--color-text-secondary);
 }
 
-/* 설정 링크 */
-.profile-page a {
+/* 설정/업데이트 버튼 영역 */
+.profile-actions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.profile-actions > * {
+  flex: 1;
+}
+
+.profile-actions a {
   text-decoration: none;
 }
 
