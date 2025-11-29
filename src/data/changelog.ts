@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.2.3',
+    date: '2025-11-30',
+    title: 'VoiceOver 지원 및 효과음 추가',
+    changes: [
+      'VoiceOver 3손가락 스와이프로 탭 전환 가능',
+      '스와이프 탭 전환 시 효과음 추가',
+      '마우스/트랙패드 수평 스크롤로 탭 전환 지원',
+    ],
+  },
+  {
     version: '1.2.2',
     date: '2025-11-30',
     title: 'UI 개선 및 접근성 강화',
@@ -67,4 +77,4 @@ export const CHANGELOG: ChangelogEntry[] = [
   },
 ];
 
-export const CURRENT_VERSION = '1.2.2';
+export const CURRENT_VERSION = '1.2.3';

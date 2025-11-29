@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { playTabSwitch } from '../utils/sound';
 
 // 탭 순서 정의
 const TAB_ORDER = ['/', '/condition', '/activity', '/report', '/profile'];
@@ -8,6 +9,10 @@ const TAB_ORDER = ['/', '/condition', '/activity', '/report', '/profile'];
 const SWIPE_THRESHOLD = 30; // 최소 스와이프 거리 (px) - iOS에서 더 잘 감지되도록 낮춤
 const SWIPE_TIMEOUT = 500;  // 최대 스와이프 시간 (ms) - 여유있게 조정
 const SWIPE_ANGLE_THRESHOLD = 30; // 수평 스와이프 판정 각도 (도)
+
+// VoiceOver 스크롤 제스처 설정
+const SCROLL_THRESHOLD = 50; // 스크롤 감지 임계값
+const SCROLL_DEBOUNCE = 300; // 디바운스 시간 (ms)
 
 interface TouchData {
   startX: number;
@@ -19,6 +24,8 @@ export function useTabNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
   const touchRef = useRef<TouchData | null>(null);
+  const lastScrollTime = useRef<number>(0);
+  const scrollAccumulator = useRef<number>(0);
 
   // 현재 탭 인덱스
   const getCurrentIndex = useCallback(() => {
@@ -29,6 +36,7 @@ export function useTabNavigation() {
   const goToPrevTab = useCallback(() => {
     const currentIndex = getCurrentIndex();
     if (currentIndex > 0) {
+      playTabSwitch('left');
       navigate(TAB_ORDER[currentIndex - 1]);
     }
   }, [getCurrentIndex, navigate]);
@@ -37,6 +45,7 @@ export function useTabNavigation() {
   const goToNextTab = useCallback(() => {
     const currentIndex = getCurrentIndex();
     if (currentIndex >= 0 && currentIndex < TAB_ORDER.length - 1) {
+      playTabSwitch('right');
       navigate(TAB_ORDER[currentIndex + 1]);
     }
   }, [getCurrentIndex, navigate]);
@@ -68,6 +77,40 @@ export function useTabNavigation() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [goToPrevTab, goToNextTab]);
+
+  // VoiceOver 3손가락 스와이프 감지 (wheel 이벤트)
+  // iOS VoiceOver에서 3손가락 좌우 스와이프는 수평 스크롤 이벤트로 전달됨
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      const now = Date.now();
+
+      // 수평 스크롤만 처리 (VoiceOver 3손가락 스와이프)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 0) {
+        // 디바운스: 너무 빠른 연속 이동 방지
+        if (now - lastScrollTime.current < SCROLL_DEBOUNCE) {
+          scrollAccumulator.current += e.deltaX;
+        } else {
+          scrollAccumulator.current = e.deltaX;
+        }
+
+        // 임계값 이상 누적되면 탭 전환
+        if (Math.abs(scrollAccumulator.current) >= SCROLL_THRESHOLD) {
+          if (scrollAccumulator.current > 0) {
+            // 오른쪽으로 스크롤 → 다음 탭
+            goToNextTab();
+          } else {
+            // 왼쪽으로 스크롤 → 이전 탭
+            goToPrevTab();
+          }
+          scrollAccumulator.current = 0;
+          lastScrollTime.current = now;
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    return () => window.removeEventListener('wheel', handleWheel);
   }, [goToPrevTab, goToNextTab]);
 
   // 터치 이벤트 핸들러

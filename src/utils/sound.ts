@@ -88,3 +88,34 @@ export function playBadge(): void {
     console.warn('Audio playback failed:', e);
   }
 }
+
+// 탭 전환 사운드: 부드러운 스와이프 효과
+export function playTabSwitch(direction: 'left' | 'right' = 'right'): void {
+  try {
+    const ctx = getAudioContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.type = 'sine';
+
+    // 방향에 따라 주파수 변화 (오른쪽: 상승, 왼쪽: 하강)
+    if (direction === 'right') {
+      oscillator.frequency.setValueAtTime(400, ctx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1);
+    } else {
+      oscillator.frequency.setValueAtTime(600, ctx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.1);
+    }
+
+    gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.15);
+  } catch (e) {
+    console.warn('Audio playback failed:', e);
+  }
+}
