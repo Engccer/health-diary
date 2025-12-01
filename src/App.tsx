@@ -74,7 +74,7 @@ function App() {
   useSettings();
 
   return (
-    <BrowserRouter basename="/health-diary">
+    <BrowserRouter>
       <AppContent />
     </BrowserRouter>
   );
