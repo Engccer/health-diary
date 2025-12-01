@@ -14,7 +14,7 @@ This file provides guidance to Claude Code when working in this repository.
 - **빌드**: Vite 7
 - **차트**: Recharts
 - **PWA**: Vite PWA Plugin + Workbox
-- **배포**: GitHub Actions → GitHub Pages
+- **배포**: Vercel
 
 ## 프로젝트 구조
 
@@ -81,13 +81,13 @@ src/
 npm run dev      # 개발 서버 실행
 npm run build    # 프로덕션 빌드
 npm run preview  # 빌드 미리보기
-npm run deploy   # GitHub Pages 배포
 ```
 
 ## 배포
 
-- **URL**: GitHub Pages (`/health-diary/`)
-- **CI/CD**: `master` 브랜치 push 시 자동 배포 (`.github/workflows/deploy.yml`)
+- **플랫폼**: Vercel
+- **CI/CD**: `master` 브랜치 push 시 자동 배포
+- **설정**: `vercel.json`
 
 ## 버전 관리
 
