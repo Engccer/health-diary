@@ -8,7 +8,7 @@ import './SettingsPage.css';
 
 export function SettingsPage() {
   const navigate = useNavigate();
-  const { settings, setFontSize, setHighContrast, setUserName } = useSettings();
+  const { settings, setFontSize, setHighContrast, setUserName, setSoundEnabled } = useSettings();
   const { clearAllRecords: clearConditions } = useCondition();
   const { clearAllRecords: clearActivities } = useActivity();
   const { resetProgress } = useGamification();
@@ -84,6 +84,25 @@ export function SettingsPage() {
             role="switch"
             aria-checked={settings.highContrast}
             aria-label="고대비 모드"
+          >
+            <span className="toggle-switch__thumb" />
+          </button>
+        </Card>
+      </section>
+
+      {/* 효과음 */}
+      <section className="settings-section">
+        <Card className="settings-toggle">
+          <div className="settings-toggle__info">
+            <h2 className="settings-toggle__title">효과음</h2>
+            <p className="settings-toggle__desc">버튼 클릭, 저장 등의 소리를 재생해요</p>
+          </div>
+          <button
+            className={`toggle-switch ${settings.soundEnabled ? 'toggle-switch--on' : ''}`}
+            onClick={() => setSoundEnabled(!settings.soundEnabled)}
+            role="switch"
+            aria-checked={settings.soundEnabled}
+            aria-label="효과음"
           >
             <span className="toggle-switch__thumb" />
           </button>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { useLocalStorage, STORAGE_KEYS } from './useLocalStorage';
 import { AppSettings, createDefaultSettings, FontSize } from '../types';
+import { setSoundEnabled as setSoundEnabledUtil, preloadSounds } from '../utils/sound';
 
 export function useSettings() {
   const [settings, setSettings] = useLocalStorage<AppSettings>(
@@ -16,6 +17,16 @@ export function useSettings() {
       String(settings.highContrast)
     );
   }, [settings.fontSize, settings.highContrast]);
+
+  // 사운드 초기화 및 설정 동기화
+  useEffect(() => {
+    preloadSounds();
+    setSoundEnabledUtil(settings.soundEnabled);
+  }, []);
+
+  useEffect(() => {
+    setSoundEnabledUtil(settings.soundEnabled);
+  }, [settings.soundEnabled]);
 
   // 글씨 크기 변경
   const setFontSize = useCallback(
@@ -53,11 +64,20 @@ export function useSettings() {
     [setSettings]
   );
 
+  // 효과음 설정 변경
+  const setSoundEnabled = useCallback(
+    (soundEnabled: boolean) => {
+      setSettings((prev) => ({ ...prev, soundEnabled }));
+    },
+    [setSettings]
+  );
+
   return {
     settings,
     setFontSize,
     setHighContrast,
     setUserName,
     setReminder,
+    setSoundEnabled,
   };
 }

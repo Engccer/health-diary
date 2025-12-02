@@ -1,5 +1,6 @@
 import { useState, ReactNode } from 'react';
 import { Card } from './Card';
+import { playExpand } from '../../utils/sound';
 import './CollapsibleCard.css';
 
 interface CollapsibleCardProps {
@@ -28,7 +29,10 @@ export function CollapsibleCard({
     <Card className={`collapsible-card ${className}`}>
       <button
         className="collapsible-card__header"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => {
+          playExpand();
+          setIsExpanded(!isExpanded);
+        }}
         aria-expanded={isExpanded}
         aria-label={ariaLabel}
       >

@@ -4,6 +4,7 @@ import { useCondition, useGamification } from '../hooks';
 import { SYMPTOM_LABELS, MOOD_OPTIONS, Symptoms, createEmptySymptoms, POINTS, ConditionRecord } from '../types';
 import { BADGES } from '../data/badges';
 import { getRelativeDateTimeFromTimestamp } from '../utils/date';
+import { playScoreSelect, playToggle } from '../utils/sound';
 import './ConditionPage.css';
 
 export function ConditionPage() {
@@ -31,6 +32,7 @@ export function ConditionPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleSymptomToggle = (key: keyof Symptoms) => {
+    playToggle();
     if (key === 'noSymptom') {
       // "특별한 증상 없음" 선택 시 다른 증상 모두 해제
       setSymptoms({
@@ -168,6 +170,7 @@ export function ConditionPage() {
               key={value}
               className={`condition-slider__btn ${overallCondition === value ? 'condition-slider__btn--active' : ''}`}
               onClick={() => {
+                playScoreSelect();
                 setOverallCondition(value as 1 | 2 | 3 | 4 | 5);
                 setSaved(false);
               }}
@@ -213,6 +216,7 @@ export function ConditionPage() {
               key={option.value}
               className={`mood-btn ${mood === option.value ? 'mood-btn--active' : ''}`}
               onClick={() => {
+                playToggle();
                 setMood(option.value);
                 setSaved(false);
               }}

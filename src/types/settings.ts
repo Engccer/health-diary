@@ -5,6 +5,7 @@ export type FontSize = 'normal' | 'large' | 'xlarge';
 export interface AppSettings {
   fontSize: FontSize;
   highContrast: boolean;
+  soundEnabled: boolean;
   reminderEnabled: boolean;
   reminderTime: string; // HH:mm
   userName: string;
@@ -13,6 +14,7 @@ export interface AppSettings {
 export const createDefaultSettings = (): AppSettings => ({
   fontSize: 'large', // 어르신용 기본값
   highContrast: false,
+  soundEnabled: true, // 효과음 기본 활성화
   reminderEnabled: false,
   reminderTime: '09:00',
   userName: '',

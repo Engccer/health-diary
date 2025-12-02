@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
+import { playNavTap } from '../../utils/sound';
 import './Navigation.css';
 
 interface NavItem {
@@ -35,6 +36,7 @@ export function Navigation() {
               aria-selected={isActive(item.to)}
               aria-label={`${item.label} 탭${isActive(item.to) ? ', 현재 페이지' : ''}`}
               tabIndex={isActive(item.to) ? 0 : -1}
+              onClick={() => playNavTap()}
             >
               <span className="navigation__icon" aria-hidden="true">
                 {item.icon}

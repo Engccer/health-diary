@@ -1,4 +1,5 @@
 import { useEffect, useRef, ReactNode } from 'react';
+import { playModalOpen } from '../../utils/sound';
 import './BottomSheet.css';
 
 interface BottomSheetProps {
@@ -23,10 +24,11 @@ export function BottomSheet({ isOpen, onClose, title, children }: BottomSheetPro
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // 열릴 때 스크롤 방지
+  // 열릴 때 스크롤 방지 및 사운드 재생
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      playModalOpen();
     } else {
       document.body.style.overflow = '';
     }

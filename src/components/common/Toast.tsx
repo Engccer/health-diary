@@ -1,4 +1,10 @@
 import { useEffect, useState } from 'react';
+import {
+  playToastSuccess,
+  playToastError,
+  playToastInfo,
+  playToastAchievement,
+} from '../../utils/sound';
 import './Toast.css';
 
 export interface ToastData {
@@ -20,6 +26,22 @@ export function Toast({ toast, onClose }: ToastProps) {
   useEffect(() => {
     // 애니메이션을 위해 약간의 지연 후 표시
     requestAnimationFrame(() => setIsVisible(true));
+
+    // 토스트 타입에 따른 사운드 재생
+    switch (toast.type) {
+      case 'success':
+        playToastSuccess();
+        break;
+      case 'error':
+        playToastError();
+        break;
+      case 'info':
+        playToastInfo();
+        break;
+      case 'achievement':
+        playToastAchievement();
+        break;
+    }
 
     const timer = setTimeout(() => {
       setIsVisible(false);

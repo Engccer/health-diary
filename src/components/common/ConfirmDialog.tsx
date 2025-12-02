@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Button } from './Button';
+import { playDeleteConfirm } from '../../utils/sound';
 import './ConfirmDialog.css';
 
 interface ConfirmDialogProps {
@@ -35,10 +36,13 @@ export function ConfirmDialog({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onCancel]);
 
-  // 열릴 때 스크롤 방지
+  // 열릴 때 스크롤 방지 및 사운드 재생
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      if (variant === 'danger') {
+        playDeleteConfirm();
+      }
     } else {
       document.body.style.overflow = '';
     }
@@ -46,7 +50,7 @@ export function ConfirmDialog({
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isOpen]);
+  }, [isOpen, variant]);
 
   if (!isOpen) return null;
 

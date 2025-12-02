@@ -4,6 +4,7 @@ import { useActivity, useGamification } from '../hooks';
 import { POINTS, ActivityRecord } from '../types';
 import { BADGES } from '../data/badges';
 import { getRelativeDateTimeFromTimestamp } from '../utils/date';
+import { playIncrement, playDecrement, playToggle } from '../utils/sound';
 import './ActivityPage.css';
 
 export function ActivityPage() {
@@ -150,7 +151,10 @@ export function ActivityPage() {
             <button
               key={min}
               className={`quick-btn ${duration === min ? 'quick-btn--active' : ''}`}
-              onClick={() => handleDurationChange(min)}
+              onClick={() => {
+                playToggle();
+                handleDurationChange(min);
+              }}
               aria-pressed={duration === min}
             >
               {min}분
@@ -162,7 +166,10 @@ export function ActivityPage() {
         <div className="duration-input">
           <button
             className="duration-btn"
-            onClick={() => handleDurationChange(duration - 5)}
+            onClick={() => {
+              playDecrement();
+              handleDurationChange(duration - 5);
+            }}
             aria-label="5분 감소"
           >
             −
@@ -173,7 +180,10 @@ export function ActivityPage() {
           </div>
           <button
             className="duration-btn"
-            onClick={() => handleDurationChange(duration + 5)}
+            onClick={() => {
+              playIncrement();
+              handleDurationChange(duration + 5);
+            }}
             aria-label="5분 증가"
           >
             +

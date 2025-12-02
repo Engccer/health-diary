@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react';
+import { playButtonTap } from '../../utils/sound';
 import './Button.css';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
@@ -35,12 +36,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       .filter(Boolean)
       .join(' ');
 
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (!disabled) {
+        playButtonTap();
+      }
+      props.onClick?.(e);
+    };
+
     return (
       <button
         ref={ref}
         className={classNames}
         disabled={disabled}
         {...props}
+        onClick={handleClick}
       >
         {icon && <span className="button__icon" aria-hidden="true">{icon}</span>}
         {children && <span className="button__text">{children}</span>}
