@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude config:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_wait_for",
+      "Bash(find:*)",
+      "mcp__ElevenLabs__text_to_sound_effects",
+      "Bash(npm run dev:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -c (New-Object Media.SoundPlayer 'C:\\Windows\\Media\\Windows Proximity Notification.wav').PlaySync()"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -c (New-Object Media.SoundPlayer 'C:\\Windows\\Media\\Windows Proximity Connection.wav').PlaySync()"
+          }
+        ]
+      }
+    ]
+  }
+}
